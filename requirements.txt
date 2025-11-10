@@ -1,0 +1,8 @@
+# general  modules
+django == 4.2
+python-decouple
+Pillow
+djangorestframework
+
+# third party modules
+django-cors-headers
