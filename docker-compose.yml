@@ -1,4 +1,17 @@
 services: 
+  db:
+    image: postgres:14-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: sharjbook
+      POSTGRES_USER: sharjuser
+      POSTGRES_PASSWORD: sharjpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
   backend:
     build: .
     container_name: backend
@@ -7,6 +20,16 @@ services:
       - ./core:/app
     ports:
       - "8000:8000"
+    depends_on:
+      - db
     environment:
       - SECRET_KEY=test
       - DEBUG=True
+      - DB_NAME=sharjbook
+      - DB_USER=sharjuser
+      - DB_PASSWORD=sharjpass
+      - DB_HOST=db
+      - DB_PORT=5432
+
+volumes:
+  postgres_data:
