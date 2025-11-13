@@ -126,3 +126,43 @@ class Debt(models.Model):
 
     def __str__(self):
         return f"{self.resident.full_name} - {self.amount_due} ریال"
+
+
+
+class BuildingFund(models.Model):
+    """
+    صندوق مالی هر ساختمان (نگهدارنده موجودی)
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    building = models.OneToOneField(
+        Building,
+        on_delete=models.CASCADE,
+        related_name='fund',
+        verbose_name='ساختمان'
+    )
+    balance = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        default=0,
+        verbose_name='موجودی صندوق (ریال)'
+    )
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='آخرین به‌روزرسانی')
+
+    class Meta:
+        verbose_name = 'صندوق ساختمان'
+        verbose_name_plural = 'صندوق‌های ساختمان'
+
+    def __str__(self):
+        return f"صندوق {self.building.name} - موجودی: {self.balance} ریال"
+
+    def apply_transaction(self, transaction):
+        """
+        اعمال تراکنش روی صندوق
+        در صورتی که تراکنش درآمد باشد، موجودی افزایش می‌یابد
+        و در صورت هزینه، موجودی کاهش می‌یابد.
+        """
+        if transaction.transaction_type == Transaction.TransactionTypes.INCOME:
+            self.balance += transaction.amount
+        elif transaction.transaction_type == Transaction.TransactionTypes.EXPENSE:
+            self.balance -= transaction.amount
+        self.save()

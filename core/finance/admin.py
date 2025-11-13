@@ -1,5 +1,22 @@
 from django.contrib import admin
-from .models import Transaction, Payment, Debt
+from .models import Transaction, Payment, Debt, BuildingFund
+
+
+@admin.register(BuildingFund)
+class BuildingFundAdmin(admin.ModelAdmin):
+    list_display = ('building', 'balance', 'updated_at')
+    search_fields = ('building__name',)
+    readonly_fields = ('updated_at',)
+    ordering = ('-updated_at',)
+    autocomplete_fields = ('building',)
+    fieldsets = (
+        (None, {
+            'fields': ('building', 'balance')
+        }),
+        ('اطلاعات زمانی', {
+            'fields': ('updated_at',),
+        }),
+    )
 
 
 @admin.register(Transaction)
@@ -12,12 +29,15 @@ class TransactionAdmin(admin.ModelAdmin):
         'date',
         'is_paid',
         'created_by',
+        'fund_balance_display',  # نمایش موجودی صندوق مرتبط
     )
     list_filter = ('transaction_type', 'is_paid', 'building', 'date')
     search_fields = ('title', 'description', 'building__name', 'created_by__first_name', 'created_by__last_name')
     ordering = ('-date',)
     autocomplete_fields = ('building', 'created_by')
     date_hierarchy = 'date'
+    readonly_fields = ('created_at', 'updated_at')
+
     fieldsets = (
         (None, {
             'fields': (
@@ -38,7 +58,12 @@ class TransactionAdmin(admin.ModelAdmin):
             'fields': ('created_at', 'updated_at'),
         }),
     )
-    readonly_fields = ('created_at', 'updated_at')
+
+    def fund_balance_display(self, obj):
+        """نمایش موجودی فعلی صندوق ساختمان در ادمین"""
+        fund = getattr(obj.building, 'fund', None)
+        return f"{fund.balance:,} ریال" if fund else "—"
+    fund_balance_display.short_description = 'موجودی فعلی صندوق'
 
 
 @admin.register(Payment)
