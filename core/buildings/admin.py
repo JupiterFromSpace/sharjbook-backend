@@ -20,6 +20,7 @@ class BuildingAdmin(admin.ModelAdmin):
         "building_type",
         "use_type",
         "shaba_number",
+        "monthly_charge_amount",
         "is_active",
         "created_at",
     )

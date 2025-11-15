@@ -59,6 +59,14 @@ class Building(models.Model):
         validators=[shaba_validator],
         verbose_name='شماره شبا'
     )
+    
+    monthly_charge_amount = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        default=0,
+        verbose_name='مبلغ شارژ ماهیانه (ریال)'
+    )
+
 
     
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
