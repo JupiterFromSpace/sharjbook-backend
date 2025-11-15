@@ -38,3 +38,16 @@ class CreateBuildingSerializer(serializers.ModelSerializer):
 
     def get_balance(self, obj):
         return obj.fund.balance if hasattr(obj, 'fund') else 0
+
+
+
+class BuildingListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Building
+        fields = [
+            'id',
+            'name',
+            'address',
+            'building_type',
+            'use_type',
+        ]
