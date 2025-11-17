@@ -1,6 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import Transaction, Payment, BuildingFund
+from buildings.models import Building
 
 
 @receiver(post_save, sender=Transaction)
@@ -22,3 +23,8 @@ def update_fund_on_payment(sender, instance, created, **kwargs):
         fund, _ = BuildingFund.objects.get_or_create(building=instance.transaction.building)
         fund.balance += instance.amount_paid
         fund.save()
+
+@receiver(post_save, sender=Building)
+def create_building_fund(sender, instance, created, **kwargs):
+    if created:
+        BuildingFund.objects.get_or_create(building=instance)

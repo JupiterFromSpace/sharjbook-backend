@@ -166,3 +166,8 @@ class BuildingFund(models.Model):
         elif transaction.transaction_type == Transaction.TransactionTypes.EXPENSE:
             self.balance -= transaction.amount
         self.save()
+
+    def create_initial_fund(self):
+        """ایجاد صندوق اولیه با موجودی صفر"""
+        self.balance = 0
+        self.save()
