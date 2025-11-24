@@ -24,17 +24,17 @@ class CreateBuildingSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
 
-        user = User.objects.get(username="user1")
+        request = self.context.get("request")
+        user = request.user
 
-        # کاربر درخواست‌دهنده → مدیر ساختمان شود
         validated_data['manager'] = user
 
         building = Building.objects.create(**validated_data)
 
-        # ساخت صندوق ساختمان
         BuildingFund.objects.create(building=building)
 
         return building
+
 
     def get_balance(self, obj):
         return obj.fund.balance if hasattr(obj, 'fund') else 0
@@ -42,6 +42,8 @@ class CreateBuildingSerializer(serializers.ModelSerializer):
 
 
 class BuildingListSerializer(serializers.ModelSerializer):
+    user_role = serializers.SerializerMethodField()
+    
     class Meta:
         model = Building
         fields = [
@@ -50,4 +52,19 @@ class BuildingListSerializer(serializers.ModelSerializer):
             'address',
             'building_type',
             'use_type',
+            'user_role',
         ]
+
+    def get_user_role(self, obj):
+        user = self.context.get("user") 
+
+        if not user:
+            return "NONE"
+
+        if obj.manager_id == user.id:
+            return 'MANAGER'
+        
+        if obj.building_residents.filter(resident=user, is_approved=True).exists():
+            return 'RESIDENT'
+
+        return 'NONE'

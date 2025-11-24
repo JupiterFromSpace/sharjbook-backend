@@ -1,11 +1,12 @@
 from rest_framework import generics
 from django.contrib.auth import get_user_model
+from rest_framework.exceptions import ValidationError
+from rest_framework.response import Response
 from buildings.models import Building
 from .serializers import CreateBuildingSerializer, BuildingListSerializer
 
 
 class CreateBuildingView(generics.CreateAPIView):
-    queryset = Building.objects.all()
     serializer_class = CreateBuildingSerializer
     
     
@@ -13,18 +14,20 @@ User = get_user_model()
     
 class ShowBuildingsView(generics.ListAPIView):
     serializer_class = BuildingListSerializer
-    
+
     def get_queryset(self):
-        # فعلاً چون لاگین نداری:
-        user = User.objects.get(username="user1") 
-        # بعداً میشه: user = self.request.user
+        return Building.objects.all()
 
-        if user.role == "MANAGER":
-            # ساختمان‌هایی که این فرد مدیرشون هست
-            return Building.objects.filter(manager=user)
+    def list(self, request, *args, **kwargs):
+        phone = request.query_params.get("phone")
+        if not phone:
+            raise ValidationError({"phone": "شماره تلفن الزامی است."})
 
-        if user.role == "RESIDENT":
-            # ساختمان‌هایی که این فرد ساکن آن‌هاست
-            return Building.objects.filter(residents=user)
+        try:
+            user = User.objects.get(phone=phone)
+        except User.DoesNotExist:
+            raise ValidationError({"phone": "کاربری با این شماره تلفن یافت نشد."})
 
-        return Building.objects.none()
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True, context={"user": user})
+        return Response(serializer.data)
