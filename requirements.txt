@@ -6,4 +6,5 @@ djangorestframework
 psycopg2-binary>=2.9
 
 # third party modules
+djangorestframework_simplejwt
 django-cors-headers
