@@ -1,23 +1,23 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
-from accounts.models import User
-
+from .serializers import LoginSerializer
 
 class LoginView(APIView):
 
-    def post (self,request):
-        phone = request.data.get('phone')
-        
-        if not phone:
-            return Response({'error': 'شماره تلفن الزامی است'}, status=400)
-        
-        user, created = User.objects.get_or_create(phone=phone)
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.save()
+
         refresh = RefreshToken.for_user(user)
-        
+
         return Response({
-            "user_id": user.id,
+            "user_id": str(user.id),
             "phone": user.phone,
+            "role": user.role,
             "access": str(refresh.access_token),
-            "refresh": str(refresh),
-        })
+            "refresh": str(refresh)
+        }, status=status.HTTP_200_OK)
