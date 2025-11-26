@@ -1,6 +1,5 @@
 from rest_framework import generics
 from django.contrib.auth import get_user_model
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from buildings.models import Building
@@ -9,13 +8,13 @@ from .serializers import CreateBuildingSerializer, BuildingListSerializer
 
 class CreateBuildingView(generics.CreateAPIView):
     serializer_class = CreateBuildingSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
     
 User = get_user_model()
     
 class ShowBuildingsView(generics.ListAPIView):
     serializer_class = BuildingListSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         user = self.request.user

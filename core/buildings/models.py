@@ -43,7 +43,6 @@ class Building(models.Model):
         through_fields=('building', 'resident'),
         related_name='residential_buildings',
         blank=True,
-        limit_choices_to={'role': 'RESIDENT'},
         verbose_name='ساکنین'
     )   
 

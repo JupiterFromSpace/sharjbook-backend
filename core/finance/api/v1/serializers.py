@@ -3,21 +3,34 @@ from finance.models import BuildingFund , Debt
 
 
 class ListBuildingFundSerializer(serializers.ModelSerializer):
-    '''Serializer for BuildingFund model for managers'''
+    building_name = serializers.CharField(source='building.name', read_only=True)
+
     class Meta:
         model = BuildingFund
-        fields = [
-            'id',
-            'building',
-            'balance',
-            'updated_at',
-        ]
+        fields = ['id', 'building', 'building_name', 'balance', 'updated_at']
+
         
-class ShowDemandFromResidents(serializers.ModelSerializer):
-    '''Serializer to show demand from residents'''
+class ShowDemandFromResidentsSerializer(serializers.ModelSerializer):
+    building_name = serializers.CharField(source='building.name', read_only=True)
+
+    class Meta:
+        model = Debt
+        fields = ['id', 'building', 'building_name', 'amount_due']
+
+        
+class ShowDebtorsListSerializer(serializers.ModelSerializer):
+    resident_name = serializers.CharField(source='resident.full_name', read_only=True)
+    building_name = serializers.CharField(source='building.name', read_only=True)
+
     class Meta:
         model = Debt
         fields = [
             'id',
+            'building',
+            'building_name',
+            'resident',
+            'resident_name',
             'amount_due',
+            'due_date',
+            'is_paid',
         ]

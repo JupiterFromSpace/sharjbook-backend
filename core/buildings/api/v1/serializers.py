@@ -26,13 +26,20 @@ class CreateBuildingSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context.get("request")
         user = request.user
-
+    
         validated_data['manager'] = user
-
         building = Building.objects.create(**validated_data)
-
-
+    
+        # 👇 اضافه کردن مدیر به ساکنین
+        from buildings.models import BuildingResident
+        BuildingResident.objects.create(
+            building=building,
+            resident=user,
+            is_approved=True
+        )
+    
         return building
+
 
     def get_balance(self, obj):
         return obj.fund.balance if hasattr(obj, 'fund') else 0

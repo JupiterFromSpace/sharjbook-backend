@@ -67,10 +67,10 @@ class Payment(models.Model):
     resident = models.ForeignKey(
         user,
         on_delete=models.CASCADE,
-        limit_choices_to={'role': 'RESIDENT'},
         related_name='payments',
-        verbose_name='ساکن پرداخت‌کننده'
+        verbose_name='پرداخت‌کننده'
     )
+
     amount_paid = models.DecimalField(max_digits=15, decimal_places=2, verbose_name='مبلغ پرداختی')
     paid_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ پرداخت')
     reference_code = models.CharField(max_length=100, blank=True, null=True, verbose_name='کد پیگیری بانکی')
@@ -105,10 +105,10 @@ class Debt(models.Model):
     resident = models.ForeignKey(
         user,
         on_delete=models.CASCADE,
-        limit_choices_to={'role': 'RESIDENT'},
         related_name='debts',
-        verbose_name='ساکن بدهکار'
+        verbose_name='کاربر بدهکار'
     )
+
     title = models.CharField(max_length=200, verbose_name='عنوان بدهی')
     amount_due = models.DecimalField(
         max_digits=15,
