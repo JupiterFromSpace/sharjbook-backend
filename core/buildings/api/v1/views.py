@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from buildings.models import Building
-from .serializers import CreateBuildingSerializer, BuildingListSerializer
+from .serializers import CreateBuildingSerializer, BuildingListSerializer, SelectActiveBuildingSerializer
 
 
 class CreateBuildingView(generics.CreateAPIView):
@@ -36,3 +36,19 @@ class ShowBuildingsView(generics.ListAPIView):
             context={"request": request}
         )
         return Response(serializer.data)
+
+
+class SelectActiveBuildingView(generics.GenericAPIView):
+    serializer_class = SelectActiveBuildingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+
+        building = serializer.validated_data["building"]
+
+        request.user.active_building = building
+        request.user.save()
+
+        return Response({"message": "ساختمان فعال تنظیم شد."})

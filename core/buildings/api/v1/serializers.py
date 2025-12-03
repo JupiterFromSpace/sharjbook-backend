@@ -71,3 +71,22 @@ class BuildingListSerializer(serializers.ModelSerializer):
             return 'RESIDENT'
 
         return 'NONE'
+
+
+class SelectActiveBuildingSerializer(serializers.Serializer):
+    building_id = serializers.UUIDField()
+
+    def validate(self, attrs):
+        user = self.context["request"].user
+        building_id = attrs["building_id"]
+
+        try:
+            building = Building.objects.get(id=building_id)
+        except Building.DoesNotExist:
+            raise serializers.ValidationError("ساختمان یافت نشد.")
+
+        if building.manager_id != user.id:
+            raise serializers.ValidationError("شما مدیر این ساختمان نیستید.")
+
+        attrs["building"] = building
+        return attrs

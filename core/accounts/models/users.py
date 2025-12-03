@@ -56,7 +56,15 @@ class User(AbstractUser):
     
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
     is_active = models.BooleanField(default=True, verbose_name="وضعیت فعال")
-
+    
+    active_building = models.ForeignKey(
+        'buildings.Building',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='active_users',
+        verbose_name='ساختمان فعال کاربر'
+    )
 
     @property
     def full_name(self):
