@@ -1,9 +1,9 @@
 from rest_framework import generics
-from .serializers import ListBuildingFundSerializer , ShowDemandFromResidentsSerializer,ShowDebtorsListSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
-from django.db import models
-from finance.models import BuildingFund, Debt
+from .serializers import (ListBuildingFundSerializer , ShowDemandFromResidentsSerializer, ShowDebtorsListSerializer 
+ , TransactionListSerializer)
+from finance.models import BuildingFund, Debt, Transaction
 
 
 class ListBuildingFundView(generics.ListAPIView):
@@ -51,14 +51,15 @@ class ShowDemandFromResidentsView(generics.ListAPIView):
     
     
     
-class ShowDebtorsListPagination(PageNumberPagination):
+class ListPagination(PageNumberPagination):
     page_size = 3
     page_size_query_param = 'page_size'
     max_page_size = 100
        
 class ShowDebtorsListView(generics.ListAPIView):
+    '''endpoint list of debtors'''
     serializer_class = ShowDebtorsListSerializer
-    pagination_class = ShowDebtorsListPagination
+    pagination_class = ListPagination
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
@@ -79,4 +80,41 @@ class ShowDebtorsListView(generics.ListAPIView):
             building=user.active_building,
             resident=user,
             is_paid=False
+        )
+
+
+class ListIncomeTransactionsView(generics.ListAPIView):
+    '''Endpoint List of income'''
+    serializer_class = TransactionListSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = ListPagination
+    
+    def get_queryset(self):
+        user = self.request.user
+        
+        if not user.active_building:
+            return Transaction.objects.none()
+        
+        return Transaction.objects.filter(
+            building = user.active_building,
+            transaction_type = Transaction.TransactionTypes.INCOME
+        )
+        
+        
+class ListExpenseTransactionsView(generics.ListAPIView):
+    '''Endpoint expense List'''
+    serializer_class = TransactionListSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = ListPagination
+    
+    
+    def get_queryset(self):
+        user = self.request.user
+        
+        if not user.active_building:
+            return Transaction.objects.none()
+
+        return Transaction.objects.filter(
+            building=user.active_building,
+            transaction_type = Transaction.TransactionTypes.EXPENSE
         )

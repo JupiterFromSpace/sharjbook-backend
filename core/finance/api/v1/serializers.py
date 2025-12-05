@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from finance.models import BuildingFund , Debt
+from finance.models import BuildingFund, Debt, Transaction
 
 
 class ListBuildingFundSerializer(serializers.ModelSerializer):
@@ -33,4 +33,23 @@ class ShowDebtorsListSerializer(serializers.ModelSerializer):
             'amount_due',
             'due_date',
             'is_paid',
+        ]
+
+
+class TransactionListSerializer(serializers.ModelSerializer):
+    building_name = serializers.CharField(source='building.name', read_only=True)
+
+    class Meta:
+        model = Transaction
+        fields = [
+            'id',
+            'building',
+            'building_name',
+            'transaction_type',
+            'title',
+            'description',
+            'amount',
+            'date',
+            'is_paid',
+            'created_at',
         ]
