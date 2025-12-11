@@ -28,14 +28,6 @@ class ShowBuildingsView(generics.ListAPIView):
 
         return (manager_buildings | resident_buildings).distinct()
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(
-            queryset,
-            many=True,
-            context={"request": request}
-        )
-        return Response(serializer.data)
 
 
 class SelectActiveBuildingView(generics.GenericAPIView):
