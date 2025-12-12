@@ -1,9 +1,11 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from buildings.models import Building
-from .serializers import CreateBuildingSerializer, BuildingListSerializer, SelectActiveBuildingSerializer
+from .serializers import (CreateBuildingSerializer, BuildingListSerializer, SelectActiveBuildingSerializer,
+    AddResidentSerializer,    
+    )
 
 
 class CreateBuildingView(generics.CreateAPIView):
@@ -32,7 +34,7 @@ class ShowBuildingsView(generics.ListAPIView):
 
 class SelectActiveBuildingView(generics.GenericAPIView):
     serializer_class = SelectActiveBuildingSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data, context={"request": request})
@@ -44,3 +46,37 @@ class SelectActiveBuildingView(generics.GenericAPIView):
         request.user.save()
 
         return Response({"message": "ساختمان فعال تنظیم شد."})
+
+
+
+
+class AddResidentView(generics.GenericAPIView):
+    serializer_class = AddResidentSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, building_id):
+        manager = request.user
+
+        try:
+            building = Building.objects.get(id=building_id)
+        except Building.DoesNotExist:
+            return Response({"error": "ساختمان یافت نشد."}, status=404)
+
+        if building.manager_id != manager.id:
+            return Response({"error": "شما مدیر این ساختمان نیستید."}, status=403)
+
+        serializer = self.get_serializer(
+            data=request.data,
+            context={"building": building, "request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        resident = serializer.save()
+
+        return Response({
+            "message": "ساکن با موفقیت اضافه شد.",
+            "resident_id": resident.id,
+            "full_name": resident.resident.full_name,
+            "phone": resident.resident.phone,
+            "unit": resident.unit,
+            "monthly_charge_amount": str(resident.monthly_charge_amount),
+        }, status=201)

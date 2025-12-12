@@ -95,6 +95,16 @@ class BuildingResident(models.Model):
         related_name='residences',
         verbose_name='ساکن'
     )
+    
+    monthly_charge_amount = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        default=0,
+        verbose_name="شارژ ماهیانه واحد"
+)
+    
+    unit = models.PositiveIntegerField(verbose_name='واحد')
+    
     added_by = models.ForeignKey(
         user,
         on_delete=models.SET_NULL,

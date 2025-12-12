@@ -1,7 +1,8 @@
 from rest_framework import serializers
+from django.db import transaction
 from buildings.models import Building
 from django.contrib.auth import get_user_model
-from finance.models import BuildingFund
+from buildings.models import BuildingResident
 
 User = get_user_model()
 
@@ -31,7 +32,6 @@ class CreateBuildingSerializer(serializers.ModelSerializer):
         building = Building.objects.create(**validated_data)
     
         # 👇 اضافه کردن مدیر به ساکنین
-        from buildings.models import BuildingResident
         BuildingResident.objects.create(
             building=building,
             resident=user,
@@ -90,3 +90,67 @@ class SelectActiveBuildingSerializer(serializers.Serializer):
 
         attrs["building"] = building
         return attrs
+
+
+
+class AddResidentSerializer(serializers.Serializer):
+    full_name = serializers.CharField(write_only=True)
+    phone = serializers.CharField(write_only=True)
+    unit = serializers.IntegerField(write_only=True)
+    monthly_charge_amount = serializers.DecimalField(
+        max_digits=15, decimal_places=2, write_only=True
+    )
+
+    def validate(self, attrs):
+        phone = attrs["phone"]
+        building = self.context["building"]
+
+        if User.objects.filter(
+            phone=phone,
+            residential_buildings=building
+        ).exists():
+            raise serializers.ValidationError("این کاربر قبلاً در این ساختمان ثبت شده است.")
+
+        if attrs["unit"] > building.units:
+            raise serializers.ValidationError("شماره واحد معتبر نیست.")
+
+        return attrs
+
+    def create(self, validated_data):
+        building = self.context["building"]
+        request = self.context["request"]
+
+        phone = validated_data["phone"]
+        full_name = validated_data["full_name"]
+        unit = validated_data["unit"]
+        monthly_charge_amount = validated_data["monthly_charge_amount"]
+
+        parts = full_name.strip().split()
+        first_name = parts[0]
+        last_name = " ".join(parts[1:]) if len(parts) > 1 else ""
+
+        user, created = User.objects.get_or_create(
+            phone=phone,
+            defaults={
+                "role": User.Roles.RESIDENT,
+                "first_name": first_name,
+                "last_name": last_name,
+            }
+        )
+
+        if not created and user.role != User.Roles.RESIDENT:
+            user.role = User.Roles.RESIDENT
+            user.first_name = first_name
+            user.last_name = last_name
+            user.save()
+
+        resident = BuildingResident.objects.create(
+            building=building,
+            resident=user,
+            unit=unit,
+            monthly_charge_amount=monthly_charge_amount,
+            added_by=request.user,
+            is_approved=True
+        )
+
+        return resident
