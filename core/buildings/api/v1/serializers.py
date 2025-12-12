@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from django.db import transaction
 from buildings.models import Building
 from django.contrib.auth import get_user_model
 from buildings.models import BuildingResident
+
 
 User = get_user_model()
 
@@ -30,13 +30,6 @@ class CreateBuildingSerializer(serializers.ModelSerializer):
     
         validated_data['manager'] = user
         building = Building.objects.create(**validated_data)
-    
-        # 👇 اضافه کردن مدیر به ساکنین
-        BuildingResident.objects.create(
-            building=building,
-            resident=user,
-            is_approved=True
-        )
     
         return building
 
@@ -95,7 +88,7 @@ class SelectActiveBuildingSerializer(serializers.Serializer):
 
 class AddResidentSerializer(serializers.Serializer):
     full_name = serializers.CharField(write_only=True)
-    phone = serializers.CharField(write_only=True)
+    phone = serializers.CharField(write_only=True, validators=[User.phone_validator])
     unit = serializers.IntegerField(write_only=True)
     monthly_charge_amount = serializers.DecimalField(
         max_digits=15, decimal_places=2, write_only=True
@@ -154,3 +147,21 @@ class AddResidentSerializer(serializers.Serializer):
         )
 
         return resident
+
+
+
+
+class ListResidentSerializer(serializers.ModelSerializer):
+    phone = serializers.CharField(source="resident.phone", read_only=True)
+    full_name = serializers.CharField(source="resident.full_name", read_only=True)
+
+    class Meta:
+        model = BuildingResident
+        fields = [
+            'unit',
+            'full_name',
+            'phone',
+            'monthly_charge_amount',
+        ]
+
+    

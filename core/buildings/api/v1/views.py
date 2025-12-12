@@ -1,10 +1,11 @@
-from rest_framework import generics, status
+from rest_framework import generics, pagination
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from buildings.models import Building
+from rest_framework.exceptions import NotFound, PermissionDenied
+from buildings.models import Building, BuildingResident
 from .serializers import (CreateBuildingSerializer, BuildingListSerializer, SelectActiveBuildingSerializer,
-    AddResidentSerializer,    
+    AddResidentSerializer,ListResidentSerializer,    
     )
 
 
@@ -80,3 +81,30 @@ class AddResidentView(generics.GenericAPIView):
             "unit": resident.unit,
             "monthly_charge_amount": str(resident.monthly_charge_amount),
         }, status=201)
+
+
+
+
+class ListResidentPagination(pagination.PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+class ListResidentView(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    pagination_class = ListResidentPagination
+    serializer_class = ListResidentSerializer
+    
+    def get_queryset(self):
+        building_id = self.kwargs.get("building_id")
+        
+        try:
+            building = Building.objects.get(id = building_id)
+        except Building.DoesNotExist:
+            raise NotFound("ساختمان یافت نشد")
+        
+        if building.manager_id != self.request.user.id:
+            raise PermissionDenied("شما مدیر این ساختمان نیستید")
+        
+        return BuildingResident.objects.filter(building=building).select_related("resident")
+    
