@@ -97,17 +97,24 @@ class AddResidentSerializer(serializers.Serializer):
     def validate(self, attrs):
         phone = attrs["phone"]
         building = self.context["building"]
-
-        if User.objects.filter(
-            phone=phone,
-            residential_buildings=building
+    
+        user = User.objects.filter(phone=phone).first()
+    
+        if user and BuildingResident.objects.filter(
+            building=building,
+            resident=user
         ).exists():
-            raise serializers.ValidationError("این کاربر قبلاً در این ساختمان ثبت شده است.")
-
+            raise serializers.ValidationError({
+                "phone": "این ساکن قبلاً در این ساختمان ثبت شده است."
+            })
+    
         if attrs["unit"] > building.units:
-            raise serializers.ValidationError("شماره واحد معتبر نیست.")
-
+            raise serializers.ValidationError({
+                "unit": "شماره واحد معتبر نیست."
+            })
+    
         return attrs
+
 
     def create(self, validated_data):
         building = self.context["building"]
@@ -131,13 +138,15 @@ class AddResidentSerializer(serializers.Serializer):
             }
         )
 
-        if not created and user.role != User.Roles.RESIDENT:
-            user.role = User.Roles.RESIDENT
-            user.first_name = first_name
-            user.last_name = last_name
-            user.save()
+        if BuildingResident.objects.filter(
+            building=building,
+            resident=user
+        ).exists():
+            raise serializers.ValidationError(
+                "این ساکن قبلاً در این ساختمان ثبت شده است."
+            )
 
-        resident = BuildingResident.objects.create(
+        return BuildingResident.objects.create(
             building=building,
             resident=user,
             unit=unit,
@@ -146,7 +155,6 @@ class AddResidentSerializer(serializers.Serializer):
             is_approved=True
         )
 
-        return resident
 
 
 
