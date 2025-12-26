@@ -74,7 +74,6 @@ class PaymentAdmin(admin.ModelAdmin):
         'amount_paid',
         'method',
         'paid_at',
-        'reference_code',
     )
     list_filter = ('method', 'paid_at', 'transaction__building')
     search_fields = (

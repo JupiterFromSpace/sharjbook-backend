@@ -55,44 +55,6 @@ class Transaction (models.Model):
 
 
 
-class Payment(models.Model):
-    """پرداخت‌های انجام‌شده توسط ساکنین (مرتبط با تراکنش بدهی یا شارژ)"""
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    transaction = models.ForeignKey(
-        Transaction,
-        on_delete=models.CASCADE,
-        related_name='payments',
-        verbose_name='تراکنش مربوطه'
-    )
-    resident = models.ForeignKey(
-        user,
-        on_delete=models.CASCADE,
-        related_name='payments',
-        verbose_name='پرداخت‌کننده'
-    )
-
-    amount_paid = models.DecimalField(max_digits=15, decimal_places=2, verbose_name='مبلغ پرداختی')
-    paid_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ پرداخت')
-    reference_code = models.CharField(max_length=100, blank=True, null=True, verbose_name='کد پیگیری بانکی')
-    method = models.CharField(
-        max_length=50,
-        choices=[
-            ('CASH', 'نقدی'),
-            ('BANK', 'واریز بانکی'),
-            ('ONLINE', 'پرداخت آنلاین'),
-        ],
-        verbose_name='روش پرداخت'
-    )
-
-    class Meta:
-        verbose_name = 'پرداخت'
-        verbose_name_plural = 'پرداخت‌ها'
-        ordering = ['-paid_at']
-
-    def __str__(self):
-        return f"{self.resident.full_name} - {self.amount_paid} ریال"
-
-
 class Debt(models.Model):
     """بدهی‌های باز هر ساکن (شارژ یا هزینه‌ای که هنوز نداده)"""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -126,6 +88,64 @@ class Debt(models.Model):
 
     def __str__(self):
         return f"{self.resident.full_name} - {self.amount_due} ریال"
+
+
+class Payment(models.Model):
+    """پرداخت‌های انجام‌شده توسط ساکنین (مرتبط با تراکنش بدهی یا شارژ)"""
+    class Status(models.TextChoices):
+        PENDING = 'PENDING','در انتظار' 
+        SUCCESS = 'SUCCESS','موفق'
+        FAILED = 'FAILED','ناموفق'
+    
+    status = models.CharField(
+        max_length = 10,
+        choices = Status.choices,
+        default= Status.PENDING
+    )
+    
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    debt = models.ForeignKey(
+        Debt,
+        on_delete=models.CASCADE,
+        related_name='payments'
+    )
+    transaction = models.ForeignKey(
+        Transaction,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='payments',
+        verbose_name='تراکنش مربوطه'
+    )
+    resident = models.ForeignKey(
+        user,
+        on_delete=models.CASCADE,
+        related_name='payments',
+        verbose_name='پرداخت‌کننده'
+    )
+
+    amount_paid = models.DecimalField(max_digits=15, decimal_places=2, verbose_name='مبلغ پرداختی')
+    paid_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ پرداخت')
+    method = models.CharField(
+        max_length=50,
+        choices=[
+            ('CASH', 'نقدی'),
+            ('BANK', 'واریز بانکی'),
+            ('ONLINE', 'پرداخت آنلاین'),
+        ],
+        verbose_name='روش پرداخت'
+    )
+
+    class Meta:
+        verbose_name = 'پرداخت'
+        verbose_name_plural = 'پرداخت‌ها'
+        ordering = ['-paid_at']
+
+    def __str__(self):
+        return f"{self.resident.full_name} - {self.amount_paid} ریال"
+
+
 
 
 
@@ -171,3 +191,18 @@ class BuildingFund(models.Model):
         """ایجاد صندوق اولیه با موجودی صفر"""
         self.balance = 0
         self.save()
+        
+        
+        
+        
+        
+class ZarinpalTransaction(models.Model):
+    payment = models.OneToOneField(
+        Payment,
+        on_delete=models.CASCADE,
+        related_name='zarinpal'
+    )
+    authority = models.CharField(max_length=255, unique=True)
+    ref_id = models.CharField(max_length=255, null=True, blank=True)
+    status = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
