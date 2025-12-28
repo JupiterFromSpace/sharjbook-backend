@@ -3,7 +3,35 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from .serializers import (ListBuildingFundSerializer , ShowDemandFromResidentsSerializer, ShowDebtorsListSerializer 
  , TransactionListSerializer)
+from rest_framework.exceptions import NotFound
 from finance.models import BuildingFund, Debt, Transaction
+from buildings. models import Building
+
+##______________________
+
+from rest_framework.exceptions import NotFound, PermissionDenied
+from buildings.models import Building
+
+def get_building_for_user(user, building_id):
+    try:
+        building = Building.objects.get(id=building_id)
+    except Building.DoesNotExist:
+        raise NotFound("ساختمان یافت نشد")
+
+    # مدیر
+    if building.manager == user:
+        return building
+
+    # ساکن تأیید شده
+    if building.building_residents.filter(
+        resident=user,
+        is_approved=True
+    ).exists():
+        return building
+
+    raise PermissionDenied("شما به این ساختمان دسترسی ندارید")
+##_____________________________________________________
+
 
 
 class ListBuildingFundView(generics.ListAPIView):
@@ -12,13 +40,13 @@ class ListBuildingFundView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
+        building_id = self.kwargs.get("building_id")
 
-        # اگر مدیر یا ساکن هنوز ساختمان فعال انتخاب نکرده
-        if not hasattr(user, "active_building") or user.active_building is None:
-            return BuildingFund.objects.none()
+        building = get_building_for_user(user, building_id)
 
-        # فقط صندوق ساختمان انتخاب‌شده را برگردان
-        return BuildingFund.objects.filter(building=user.active_building)
+        return BuildingFund.objects.filter(building=building)
+
+
 
 
     
@@ -31,21 +59,12 @@ class ShowDemandFromResidentsView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
+        building_id = self.kwargs.get("building_id")
 
-        if not user.active_building:
-            return Debt.objects.none()
+        building = get_building_for_user(user, building_id)
 
-        # اگر مدیر است → بدهی همهٔ ساکنین همان ساختمان فعال
-        if user.is_manager:
-            return Debt.objects.filter(
-                building=user.active_building
-            )
+        return Debt.objects.filter(building=building)
 
-        # اگر ساکن است → فقط بدهی خودش در ساختمان فعال
-        return Debt.objects.filter(
-            building=user.active_building,
-            resident=user
-        )
 
     
     
@@ -57,64 +76,57 @@ class ListPagination(PageNumberPagination):
     max_page_size = 100
        
 class ShowDebtorsListView(generics.ListAPIView):
-    '''endpoint list of debtors'''
     serializer_class = ShowDebtorsListSerializer
     pagination_class = ListPagination
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         user = self.request.user
+        building_id = self.kwargs.get("building_id")
 
-        if not user.active_building:
-            return Debt.objects.none()
+        building = get_building_for_user(user, building_id)
 
-        # مدیر → تمام بدهکاران ساختمان فعال
-        if user.is_manager:
-            return Debt.objects.filter(
-                building=user.active_building,
-                is_paid=False
-            )
-
-        # ساکن → فقط بدهی خودش در ساختمان فعال
         return Debt.objects.filter(
-            building=user.active_building,
-            resident=user,
+            building=building,
             is_paid=False
         )
+
+
 
 
 class ListIncomeTransactionsView(generics.ListAPIView):
     '''Endpoint List of income'''
     serializer_class = TransactionListSerializer
-    permission_classes = (IsAuthenticated,)
     pagination_class = ListPagination
-    
+    permission_classes = (IsAuthenticated,)
+
     def get_queryset(self):
         user = self.request.user
-        
-        if not user.active_building:
-            return Transaction.objects.none()
-        
+        building_id = self.kwargs.get("building_id")
+
+        building = get_building_for_user(user, building_id)
+
         return Transaction.objects.filter(
-            building = user.active_building,
-            transaction_type = Transaction.TransactionTypes.INCOME
+            building=building,
+            transaction_type=Transaction.TransactionTypes.INCOME
         )
+
         
         
+
 class ListExpenseTransactionsView(generics.ListAPIView):
     '''Endpoint expense List'''
     serializer_class = TransactionListSerializer
-    permission_classes = (IsAuthenticated,)
     pagination_class = ListPagination
-    
-    
+    permission_classes = (IsAuthenticated,)
+
     def get_queryset(self):
         user = self.request.user
-        
-        if not user.active_building:
-            return Transaction.objects.none()
+        building_id = self.kwargs.get("building_id")
+
+        building = get_building_for_user(user, building_id)
 
         return Transaction.objects.filter(
-            building=user.active_building,
-            transaction_type = Transaction.TransactionTypes.EXPENSE
+            building=building,
+            transaction_type=Transaction.TransactionTypes.EXPENSE
         )

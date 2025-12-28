@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import NotFound, PermissionDenied
 from buildings.models import Building, BuildingResident
-from .serializers import (CreateBuildingSerializer, BuildingListSerializer, SelectActiveBuildingSerializer,
+from .serializers import (CreateBuildingSerializer, BuildingListSerializer,
     AddResidentSerializer,ListResidentSerializer,    
     )
 
@@ -33,20 +33,6 @@ class ShowBuildingsView(generics.ListAPIView):
 
 
 
-class SelectActiveBuildingView(generics.GenericAPIView):
-    serializer_class = SelectActiveBuildingSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        serializer = self.get_serializer(data=request.data, context={"request": request})
-        serializer.is_valid(raise_exception=True)
-
-        building = serializer.validated_data["building"]
-
-        request.user.active_building = building
-        request.user.save()
-
-        return Response({"message": "ساختمان فعال تنظیم شد."})
 
 
 
