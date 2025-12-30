@@ -26,12 +26,17 @@ class CreateBuildingSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get("request")
+    
+        if not request:
+            raise serializers.ValidationError(
+                "درخواست نامعتبر است"
+            )
+    
         user = request.user
+        validated_data["manager"] = user
     
-        validated_data['manager'] = user
-        building = Building.objects.create(**validated_data)
-    
-        return building
+        return Building.objects.create(**validated_data)
+
 
 
     def get_balance(self, obj):

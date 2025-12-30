@@ -1,51 +1,72 @@
-from rest_framework import generics
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
-from .serializers import (ListBuildingFundSerializer , ShowDemandFromResidentsSerializer, ShowDebtorsListSerializer 
- , TransactionListSerializer)
-from rest_framework.exceptions import NotFound
+
 from finance.models import BuildingFund, Debt, Transaction
-from buildings. models import Building
-
-##______________________
-
-from rest_framework.exceptions import NotFound, PermissionDenied
 from buildings.models import Building
+
+from core.utils.responses import (
+    SuccessResponse,
+    ErrorResponse,
+    ServerErrorResponse
+)
+
+from .serializers import (
+    ListBuildingFundSerializer,
+    ShowDemandFromResidentsSerializer,
+    ShowDebtorsListSerializer,
+    TransactionListSerializer
+)
+
+#______________________
+
 
 def get_building_for_user(user, building_id):
     try:
         building = Building.objects.get(id=building_id)
     except Building.DoesNotExist:
-        raise NotFound("ساختمان یافت نشد")
+        return None, ErrorResponse.send(
+            message="ساختمان یافت نشد",
+            status_code=404
+        )
 
-    # مدیر
     if building.manager == user:
-        return building
+        return building, None
 
-    # ساکن تأیید شده
     if building.building_residents.filter(
         resident=user,
         is_approved=True
     ).exists():
-        return building
+        return building, None
 
-    raise PermissionDenied("شما به این ساختمان دسترسی ندارید")
-##_____________________________________________________
+    return None, ErrorResponse.send(
+        message="شما به این ساختمان دسترسی ندارید",
+        status_code=403
+    )
+
+#_____________________________________________________
 
 
 
-class ListBuildingFundView(generics.ListAPIView):
-    serializer_class = ListBuildingFundSerializer
+class ListBuildingFundView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def get_queryset(self):
-        user = self.request.user
-        building_id = self.kwargs.get("building_id")
+    def get(self, request, building_id):
+        try:
+            building, error = get_building_for_user(request.user, building_id)
+            if error:
+                return error
 
-        building = get_building_for_user(user, building_id)
+            funds = BuildingFund.objects.filter(building=building)
+            serializer = ListBuildingFundSerializer(funds, many=True)
 
-        return BuildingFund.objects.filter(building=building)
+            return SuccessResponse.send(
+                message="اطلاعات صندوق ساختمان با موفقیت دریافت شد",
+                data=serializer.data
+            )
 
+        except Exception:
+            return ServerErrorResponse.send()
 
 
 
@@ -53,17 +74,26 @@ class ListBuildingFundView(generics.ListAPIView):
     
     
     
-class ShowDemandFromResidentsView(generics.ListAPIView):
-    serializer_class = ShowDemandFromResidentsSerializer
+class ShowDemandFromResidentsView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def get_queryset(self):
-        user = self.request.user
-        building_id = self.kwargs.get("building_id")
+    def get(self, request, building_id):
+        try:
+            building, error = get_building_for_user(request.user, building_id)
+            if error:
+                return error
 
-        building = get_building_for_user(user, building_id)
+            debts = Debt.objects.filter(building=building)
+            serializer = ShowDemandFromResidentsSerializer(debts, many=True)
 
-        return Debt.objects.filter(building=building)
+            return SuccessResponse.send(
+                message="لیست بدهی‌ها با موفقیت دریافت شد",
+                data=serializer.data
+            )
+
+        except Exception:
+            return ServerErrorResponse.send()
+
 
 
     
@@ -75,58 +105,89 @@ class ListPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
     max_page_size = 100
        
-class ShowDebtorsListView(generics.ListAPIView):
-    serializer_class = ShowDebtorsListSerializer
-    pagination_class = ListPagination
+class ShowDebtorsListView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def get_queryset(self):
-        user = self.request.user
-        building_id = self.kwargs.get("building_id")
+    def get(self, request, building_id):
+        try:
+            building, error = get_building_for_user(request.user, building_id)
+            if error:
+                return error
 
-        building = get_building_for_user(user, building_id)
+            queryset = Debt.objects.filter(
+                building=building,
+                is_paid=False
+            )
 
-        return Debt.objects.filter(
-            building=building,
-            is_paid=False
-        )
+            paginator = ListPagination()
+            page = paginator.paginate_queryset(queryset, request)
+            serializer = ShowDebtorsListSerializer(page, many=True)
+
+            return SuccessResponse.send(
+                message="لیست بدهکاران با موفقیت دریافت شد",
+                data=serializer.data
+            )
+
+        except Exception:
+            return ServerErrorResponse.send()
 
 
 
 
-class ListIncomeTransactionsView(generics.ListAPIView):
-    '''Endpoint List of income'''
-    serializer_class = TransactionListSerializer
-    pagination_class = ListPagination
+
+class ListIncomeTransactionsView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def get_queryset(self):
-        user = self.request.user
-        building_id = self.kwargs.get("building_id")
+    def get(self, request, building_id):
+        try:
+            building, error = get_building_for_user(request.user, building_id)
+            if error:
+                return error
 
-        building = get_building_for_user(user, building_id)
+            queryset = Transaction.objects.filter(
+                building=building,
+                transaction_type=Transaction.TransactionTypes.INCOME
+            )
 
-        return Transaction.objects.filter(
-            building=building,
-            transaction_type=Transaction.TransactionTypes.INCOME
-        )
+            paginator = ListPagination()
+            page = paginator.paginate_queryset(queryset, request)
+            serializer = TransactionListSerializer(page, many=True)
+
+            return SuccessResponse.send(
+                message="لیست درآمدها با موفقیت دریافت شد",
+                data=serializer.data
+            )
+
+        except Exception:
+            return ServerErrorResponse.send()
+
 
         
         
 
-class ListExpenseTransactionsView(generics.ListAPIView):
-    '''Endpoint expense List'''
-    serializer_class = TransactionListSerializer
-    pagination_class = ListPagination
+class ListExpenseTransactionsView(APIView):
     permission_classes = (IsAuthenticated,)
 
-    def get_queryset(self):
-        user = self.request.user
-        building_id = self.kwargs.get("building_id")
+    def get(self, request, building_id):
+        try:
+            building, error = get_building_for_user(request.user, building_id)
+            if error:
+                return error
 
-        building = get_building_for_user(user, building_id)
+            queryset = Transaction.objects.filter(
+                building=building,
+                transaction_type=Transaction.TransactionTypes.EXPENSE
+            )
 
-        return Transaction.objects.filter(
-            building=building,
-            transaction_type=Transaction.TransactionTypes.EXPENSE
-        )
+            paginator = ListPagination()
+            page = paginator.paginate_queryset(queryset, request)
+            serializer = TransactionListSerializer(page, many=True)
+
+            return SuccessResponse.send(
+                message="لیست هزینه‌ها با موفقیت دریافت شد",
+                data=serializer.data
+            )
+
+        except Exception:
+            return ServerErrorResponse.send()
+
