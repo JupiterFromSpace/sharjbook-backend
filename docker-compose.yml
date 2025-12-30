@@ -15,7 +15,7 @@ services:
   backend:
     build: .
     container_name: backend
-    command: python manage.py runserver 0.0.0.0:8000
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3 --log-level info
     volumes:
       - ./core:/app
     ports:
@@ -30,6 +30,34 @@ services:
       - DB_PASSWORD=sharjpass
       - DB_HOST=db
       - DB_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+  
+  
+
+
+
+  redis:
+    image: redis
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+
+  worker:
+    build: .
+    command: celery -A core worker --loglevel=info
+    volumes:
+      - ./core:/app
+    depends_on:
+      - redis
+      - backend
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+
 
 volumes:
   postgres_data:

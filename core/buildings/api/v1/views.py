@@ -81,9 +81,6 @@ class ShowBuildingsView(APIView):
 
 
 
-
-
-
 class AddResidentView(APIView):
     permission_classes = (IsAuthenticated,)
 

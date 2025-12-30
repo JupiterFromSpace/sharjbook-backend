@@ -4,10 +4,9 @@ from rest_framework.permissions import AllowAny
 from .serializers import LoginSerializer
 from core.utils.responses import SuccessResponse, ErrorResponse
 
-
 class LoginView(APIView):
     permission_classes = (AllowAny,)
-
+    
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
 
@@ -23,7 +22,6 @@ class LoginView(APIView):
         response = SuccessResponse.send(
             message="ورود با موفقیت انجام شد",
             data={
-                "user_id": str(user.id),
                 "phone": user.phone,
                 "access": str(refresh.access_token),
             }
@@ -44,7 +42,7 @@ class LoginView(APIView):
 
 class RefreshTokenView(APIView):
     permission_classes = (AllowAny,)
-
+    
     def post(self, request):
         refresh_token = request.COOKIES.get("refresh")
 
@@ -72,6 +70,7 @@ class RefreshTokenView(APIView):
 
 
 class LogoutView(APIView):
+    
     def post(self, request):
         response = SuccessResponse.send(
             message="خروج با موفقیت انجام شد"
