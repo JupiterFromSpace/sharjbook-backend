@@ -63,6 +63,16 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+        'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.ScopedRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'default': '60/min',
+
+        'login': '5/min',
+        'refresh': '5/min',
+        'logout': '5/min',
+    }
 }
 
 

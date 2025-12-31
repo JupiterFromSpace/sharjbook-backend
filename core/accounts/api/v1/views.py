@@ -6,6 +6,7 @@ from core.utils.responses import SuccessResponse, ErrorResponse
 
 class LoginView(APIView):
     permission_classes = (AllowAny,)
+    throttle_scope = 'login'
     
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -42,6 +43,7 @@ class LoginView(APIView):
 
 class RefreshTokenView(APIView):
     permission_classes = (AllowAny,)
+    throttle_scope = 'refresh'
     
     def post(self, request):
         refresh_token = request.COOKIES.get("refresh")
@@ -70,6 +72,8 @@ class RefreshTokenView(APIView):
 
 
 class LogoutView(APIView):
+    authentication_classes = (AllowAny,)
+    throttle_scope = 'logout'
     
     def post(self, request):
         response = SuccessResponse.send(
