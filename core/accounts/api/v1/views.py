@@ -32,7 +32,7 @@ class LoginView(APIView):
             key="refresh",
             value=str(refresh),
             httponly=True,
-            secure=True,          
+            secure=False,          
             samesite="Lax",    
             max_age=60 * 60 * 24 * 7 
         )
@@ -72,7 +72,6 @@ class RefreshTokenView(APIView):
 
 
 class LogoutView(APIView):
-    authentication_classes = (AllowAny,)
     throttle_scope = 'logout'
     
     def post(self, request):
