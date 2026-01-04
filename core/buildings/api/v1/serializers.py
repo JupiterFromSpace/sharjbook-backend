@@ -1,13 +1,21 @@
 from rest_framework import serializers
 from buildings.models import Building
-from django.contrib.auth import get_user_model
+from finance.models import BuildingFund, Transaction
 from buildings.models import BuildingResident
+from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 
 User = get_user_model()
 
 class CreateBuildingSerializer(serializers.ModelSerializer):
     balance = serializers.SerializerMethodField(read_only=True)
+    initial_balance = serializers.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        write_only=True,
+        required=True
+    )
 
     class Meta:
         model = Building
@@ -20,29 +28,38 @@ class CreateBuildingSerializer(serializers.ModelSerializer):
             'units',
             'shaba_number',
             'monthly_charge_amount',
+            'initial_balance',
             'balance',
         ]
         read_only_fields = ['id', 'balance']
 
     def create(self, validated_data):
         request = self.context.get("request")
-    
-        if not request:
-            raise serializers.ValidationError(
-                "درخواست نامعتبر است"
-            )
-    
         user = request.user
-        validated_data["manager"] = user
-    
-        return Building.objects.create(**validated_data)
 
+        initial_balance = validated_data.pop('initial_balance')
+
+        building = Building.objects.create(
+            manager=user,
+            **validated_data
+        )
+
+        if initial_balance > 0:
+            Transaction.objects.create(
+                building=building,
+                created_by=user,
+                transaction_type=Transaction.TransactionTypes.INCOME,
+                title='موجودی اولیه صندوق',
+                amount=initial_balance,
+                date=timezone.now().date(),
+                is_paid=True
+            )
+
+        return building
 
 
     def get_balance(self, obj):
         return obj.fund.balance if hasattr(obj, 'fund') else 0
-
-
 
 
 class BuildingListSerializer(serializers.ModelSerializer):

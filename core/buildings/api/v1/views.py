@@ -37,7 +37,7 @@ class CreateBuildingView(APIView):
                     errors=serializer.errors
                 )
 
-            building = serializer.save(manager=request.user)
+            building = serializer.save()
 
             return SuccessResponse.send(
                 message="ساختمان با موفقیت ایجاد شد",
@@ -48,7 +48,8 @@ class CreateBuildingView(APIView):
                 status_code=201
             )
 
-        except Exception :
+        except Exception as e :
+            logger.exception("errrrrrrrrrrrrrrrroooooooooooooooooor")
             return ServerErrorResponse.send()
 
     

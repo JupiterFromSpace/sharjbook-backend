@@ -15,14 +15,12 @@ def update_fund_on_transaction(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=Payment)
-def update_fund_on_payment(sender, instance, created, **kwargs):
-    """
-    وقتی پرداخت جدید انجام شد، مبلغ رو به صندوق اضافه کن
-    """
-    if created:
-        fund, _ = BuildingFund.objects.get_or_create(building=instance.transaction.building)
-        fund.balance += instance.amount_paid
-        fund.save()
+def handle_payment(sender, instance, created, **kwargs):
+    if created and instance.status == Payment.Status.SUCCESS:
+        debt = instance.debt
+        debt.is_paid = True
+        debt.save()
+
 
 @receiver(post_save, sender=Building)
 def create_building_fund(sender, instance, created, **kwargs):
