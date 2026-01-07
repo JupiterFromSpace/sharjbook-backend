@@ -48,8 +48,7 @@ class CreateBuildingView(APIView):
                 status_code=201
             )
 
-        except Exception as e :
-            logger.exception("errrrrrrrrrrrrrrrroooooooooooooooooor")
+        except Exception :
             return ServerErrorResponse.send()
 
     

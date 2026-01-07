@@ -9,12 +9,26 @@ from django.utils import timezone
 User = get_user_model()
 
 class CreateBuildingSerializer(serializers.ModelSerializer):
+    """
+    ایجاد ساختمان + ثبت مدیر به عنوان اولین ساکن
+    همراه با اعتبارسنجی شماره واحد
+    """
+
     balance = serializers.SerializerMethodField(read_only=True)
+
+    # فقط برای ورودی
     initial_balance = serializers.DecimalField(
         max_digits=15,
         decimal_places=2,
         write_only=True,
         required=True
+    )
+
+    # متعلق به BuildingResident
+    unit = serializers.IntegerField(
+        write_only=True,
+        required=True,
+        help_text="شماره واحد مدیر ساختمان"
     )
 
     class Meta:
@@ -28,22 +42,52 @@ class CreateBuildingSerializer(serializers.ModelSerializer):
             'units',
             'shaba_number',
             'monthly_charge_amount',
+            'unit',
             'initial_balance',
             'balance',
         ]
         read_only_fields = ['id', 'balance']
 
+    def validate(self, attrs):
+        total_units = attrs.get('units')
+        unit_number = attrs.get('unit')
+
+        if unit_number < 1:
+            raise serializers.ValidationError({
+                "unit": "شماره واحد باید عددی بزرگ‌تر از صفر باشد."
+            })
+
+        if unit_number > total_units:
+            raise serializers.ValidationError({
+                "unit": "شماره واحد نمی‌تواند بیشتر از تعداد کل واحدهای ساختمان باشد."
+            })
+
+        return attrs
+
     def create(self, validated_data):
         request = self.context.get("request")
         user = request.user
 
+        unit = validated_data.pop('unit')
         initial_balance = validated_data.pop('initial_balance')
 
+        # ایجاد ساختمان
         building = Building.objects.create(
             manager=user,
             **validated_data
         )
 
+        # ثبت مدیر به عنوان اولین ساکن
+        BuildingResident.objects.create(
+            building=building,
+            resident=user,
+            unit=unit,
+            added_by=user,
+            is_approved=True,
+            monthly_charge_amount=building.monthly_charge_amount
+        )
+
+        # موجودی اولیه صندوق
         if initial_balance > 0:
             Transaction.objects.create(
                 building=building,
@@ -57,10 +101,8 @@ class CreateBuildingSerializer(serializers.ModelSerializer):
 
         return building
 
-
     def get_balance(self, obj):
         return obj.fund.balance if hasattr(obj, 'fund') else 0
-
 
 class BuildingListSerializer(serializers.ModelSerializer):
     user_role = serializers.SerializerMethodField()
