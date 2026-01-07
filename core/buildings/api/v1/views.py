@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 
 from finance.models import Debt
@@ -61,25 +62,32 @@ class ShowBuildingsView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        try:
-            user = request.user
+        user = request.user
 
-            manager_buildings = Building.objects.filter(manager=user)
-            resident_buildings = Building.objects.filter(
-                building_residents__resident=user,
-                building_residents__is_approved=True
+        buildings = (
+            Building.objects
+            .filter(
+                Q(manager=user) |
+                Q(
+                    building_residents__resident=user,
+                    building_residents__is_approved=True
+                )
             )
+            .select_related("manager")
+            .prefetch_related("building_residents")
+            .distinct()
+        )
 
-            buildings = (manager_buildings | resident_buildings).distinct()
-            serializer = BuildingListSerializer(buildings, many=True , context={"request":request})
+        serializer = BuildingListSerializer(
+            buildings,
+            many=True,
+            context={"request": request}
+        )
 
-            return SuccessResponse.send(
-                message="لیست ساختمان‌ها با موفقیت دریافت شد",
-                data=serializer.data
-            )
-
-        except Exception:
-            return ServerErrorResponse.send()
+        return SuccessResponse.send(
+            message="لیست ساختمان‌ها با موفقیت دریافت شد",
+            data=serializer.data
+        )
 
 
 
