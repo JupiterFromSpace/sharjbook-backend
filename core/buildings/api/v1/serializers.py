@@ -119,14 +119,17 @@ class BuildingListSerializer(serializers.ModelSerializer):
         ]
 
     def get_user_role(self, obj):
-        user = self.context["request"].user  
-
-        if obj.manager_id == user.id:
+        user_id = self.context["request"].user.id
+    
+        # مدیر ساختمان
+        if obj.manager_id == user_id:
             return 'MANAGER'
-
-        if obj.building_residents.filter(resident=user, is_approved=True).exists():
-            return 'RESIDENT'
-
+    
+        # ساکن تایید شده (بدون query جدید)
+        for br in obj.building_residents.all():
+            if br.resident_id == user_id and br.is_approved:
+                return 'RESIDENT'
+    
         return 'NONE'
 
 
