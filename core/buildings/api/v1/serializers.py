@@ -221,3 +221,12 @@ class ListResidentSerializer(serializers.ModelSerializer):
         ]
 
     
+class ResidentTransferSerializer(serializers.Serializer):
+    first_name = serializers.CharField(max_length=100, required=False)
+    last_name = serializers.CharField(max_length=100, required=False)
+    phone = serializers.CharField(max_length=13, required=False)
+
+    def validate_phone(self, value):
+        if value and not value.startswith("+98"):
+            raise serializers.ValidationError("شماره تماس باید با +98 شروع شود")
+        return value

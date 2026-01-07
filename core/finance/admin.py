@@ -4,35 +4,41 @@ from .models import Transaction, Payment, Debt, BuildingFund
 
 @admin.register(BuildingFund)
 class BuildingFundAdmin(admin.ModelAdmin):
+    '''
+    مدیریت صندوق مالی ساختمان
+    '''
     list_display = ('building', 'balance', 'updated_at')
     search_fields = ('building__name',)
     readonly_fields = ('updated_at',)
     ordering = ('-updated_at',)
     autocomplete_fields = ('building',)
-    fieldsets = (
-        (None, {
-            'fields': ('building', 'balance')
-        }),
-        ('اطلاعات زمانی', {
-            'fields': ('updated_at',),
-        }),
-    )
+
 
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
+    '''
+    مدیریت تراکنش‌های مالی واقعی (درآمد / هزینه)
+    '''
     list_display = (
         'title',
         'building',
         'transaction_type',
         'amount',
         'date',
-        'is_paid',
         'created_by',
-        'fund_balance_display',  # نمایش موجودی صندوق مرتبط
+        'fund_balance_display',
     )
-    list_filter = ('transaction_type', 'is_paid', 'building', 'date')
-    search_fields = ('title', 'description', 'building__name', 'created_by__first_name', 'created_by__last_name')
+
+    list_filter = ('transaction_type', 'building', 'date')
+    search_fields = (
+        'title',
+        'description',
+        'building__name',
+        'created_by__first_name',
+        'created_by__last_name',
+    )
+
     ordering = ('-date',)
     autocomplete_fields = ('building', 'created_by')
     date_hierarchy = 'date'
@@ -47,10 +53,9 @@ class TransactionAdmin(admin.ModelAdmin):
                 'created_by',
                 'amount',
                 'date',
-                'is_paid',
             )
         }),
-        ('جزئیات بیشتر', {
+        ('توضیحات', {
             'fields': ('description',),
             'classes': ('collapse',),
         }),
@@ -60,48 +65,63 @@ class TransactionAdmin(admin.ModelAdmin):
     )
 
     def fund_balance_display(self, obj):
-        """نمایش موجودی فعلی صندوق ساختمان در ادمین"""
+        '''
+        نمایش موجودی فعلی صندوق ساختمان
+        '''
         fund = getattr(obj.building, 'fund', None)
         return f"{fund.balance:,} ریال" if fund else "—"
-    fund_balance_display.short_description = 'موجودی فعلی صندوق'
+
+    fund_balance_display.short_description = 'موجودی صندوق'
 
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
+    '''
+    مدیریت پرداخت‌ها
+    '''
     list_display = (
-        'resident',
-        'transaction',
+        'paid_by',
+        'debt',
         'amount_paid',
         'method',
+        'status',
         'paid_at',
     )
-    list_filter = ('method', 'paid_at', 'transaction__building')
+
+    list_filter = ('method', 'status', 'paid_at')
     search_fields = (
-        'resident__first_name',
-        'resident__last_name',
-        'transaction__title',
-        'reference_code',
+        'paid_by__first_name',
+        'paid_by__last_name',
+        'debt__title',
     )
-    autocomplete_fields = ('resident', 'transaction')
+
+    autocomplete_fields = ('paid_by', 'debt', 'transaction')
     readonly_fields = ('paid_at',)
+
 
 
 @admin.register(Debt)
 class DebtAdmin(admin.ModelAdmin):
+    '''
+    مدیریت بدهی‌ها (شارژ ماهانه / هزینه‌ها)
+    '''
     list_display = (
-        'resident',
-        'building',
         'title',
+        'building',
+        'unit_number',
+        'responsible',
         'amount_due',
         'due_date',
         'is_paid',
     )
+
     list_filter = ('is_paid', 'building', 'due_date')
     search_fields = (
-        'resident__first_name',
-        'resident__last_name',
         'title',
         'building__name',
+        'responsible__first_name',
+        'responsible__last_name',
     )
-    autocomplete_fields = ('resident', 'building')
+
+    autocomplete_fields = ('building', 'responsible')
     ordering = ('due_date',)

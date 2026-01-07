@@ -1,7 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
+from django.db import transaction
+from django.shortcuts import get_object_or_404
 
+from finance.models import Debt
 from buildings.models import Building, BuildingResident
 from core.utils.responses import (
     SuccessResponse,
@@ -13,6 +16,7 @@ from .serializers import (
     BuildingListSerializer,
     AddResidentSerializer,
     ListResidentSerializer,
+    ResidentTransferSerializer,
 )
 
 import logging
@@ -173,3 +177,44 @@ class ListResidentView(APIView):
 
         except Exception:
             return ServerErrorResponse.send()
+
+
+
+class TransferDebtsView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def patch(self, request, resident_id):
+        """انتقال بدهی‌ها به مالک و بروزرسانی اطلاعات ساکن"""
+        resident_relation = get_object_or_404(BuildingResident, pk=resident_id)
+        resident = resident_relation.resident
+        owner = resident_relation.building.manager
+
+        serializer = ResidentTransferSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        # حداقل یکی از فیلدها باید تغییر کند
+        if not any(field in data for field in ['first_name', 'last_name', 'phone']):
+            return ErrorResponse.send(message="حداقل یکی از فیلدها باید تغییر کند")
+
+        try:
+            with transaction.atomic():
+                # انتقال بدهی‌ها به مالک
+                Debt.objects.filter(
+                    building=resident_relation.building,
+                    unit_number=resident_relation.unit,
+                    responsible=resident
+                ).update(responsible=owner)
+
+                # بروزرسانی اطلاعات ساکن
+                for field in ['first_name', 'last_name', 'phone']:
+                    if field in data:
+                        setattr(resident, field, data[field])
+                resident.save()
+
+            return SuccessResponse.send(
+                message="اطلاعات ساکن بروزرسانی شد و بدهی‌ها به مالک منتقل شد."
+            )
+
+        except Exception as e:
+            return ServerErrorResponse.send(message=str(e))
