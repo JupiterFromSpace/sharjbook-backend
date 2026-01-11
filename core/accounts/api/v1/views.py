@@ -1,8 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import AllowAny
-from .serializers import LoginSerializer
-from core.utils.responses import SuccessResponse, ErrorResponse
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from .serializers import LoginSerializer, UpdateProfileSerializer, ShowProfileSerializer
+from core.utils.responses import SuccessResponse, ErrorResponse, ServerErrorResponse
+from ...models.profiles import Profile
 
 class LoginView(APIView):
     permission_classes = (AllowAny,)
@@ -80,3 +81,33 @@ class LogoutView(APIView):
         )
         response.delete_cookie("refresh")
         return response
+    
+    
+
+
+class UpdateProfileView(APIView):
+    """Update user profile with optional fields."""
+    
+    permission_classes = (IsAuthenticated)
+    
+    def get_object(self):
+        return self.request.user.profile
+    
+    def patch(self,request,*args,**kwargs):
+        try:
+            serializer= UpdateProfileSerializer
+            profile = self.get_object()
+            serializer = self.get_serializer(profile, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return SuccessResponse.send(
+                data = serializer.data,
+                message= "پروفایل با موفقیت تغییر یافت"
+            )
+        except Profile.DoesNotExist:
+            return ErrorResponse.send(
+                status_code= 400,
+                message="پروفایل پیدا نشد"
+            )
+        except Exception as e:
+            return ServerErrorResponse()

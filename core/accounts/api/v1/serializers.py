@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models import User
+from accounts.models import User,Profile
 
 class LoginSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,3 +19,39 @@ class LoginSerializer(serializers.ModelSerializer):
         self.context["created"] = created
 
         return user
+
+
+
+class ShowProfileSerializer(serializers.ModelSerializer):
+    
+    phone = serializers.CharField(source="user.phone", read_only=True)
+    class Meta:
+        model = Profile
+        fields = (
+            'first_name',
+            'last_name',
+            'image',
+            'discription',
+            'email',
+            'phone',
+        )
+
+
+
+
+class UpdateProfileSerializer(serializers.ModelSerializer):
+    """Update profile fields partially (optional fields)."""
+    
+    phone = serializers.CharField(source="user.phone", read_only=True)
+    
+    class meta:
+        model = Profile
+        fields = (
+            'first_name',
+            'last_name',
+            'image',
+            'phone',
+            'email',
+            'description',
+        )
+        read_only_fields = ['phone']

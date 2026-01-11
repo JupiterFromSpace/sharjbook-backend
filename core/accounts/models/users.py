@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
+from django.utils import timezone
+from datetime import timedelta
+import random
 import uuid
 
 
@@ -50,8 +53,6 @@ class User(AbstractUser):
     
     
     role = models.CharField(max_length=20, choices=Roles.choices, default="MANAGER", verbose_name='نقش کاربر')
-    first_name = models.CharField(max_length=100, blank=True, null=True, verbose_name='نام')
-    last_name = models.CharField(max_length=100, blank=True, null=True, verbose_name='نام خانوادگی')
     phone = models.CharField(validators=[phone_validator],max_length=13, unique=True, verbose_name='شماره تماس')
     
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
@@ -66,12 +67,7 @@ class User(AbstractUser):
         verbose_name='ساختمان فعال کاربر'
     )
 
-    @property
-    def full_name(self):
-        return f"{self.first_name} {self.last_name}"
 
-    def __str__(self):
-        return f"{self.full_name} - {self.get_role_display()}"
     
     @property
     def is_manager(self):
@@ -80,3 +76,23 @@ class User(AbstractUser):
     @property
     def is_resident(self):
         return self.role == self.Roles.RESIDENT
+    
+    
+    
+
+class OTP(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="otps")
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.phone} - {self.code}"
+
+    def is_expired(self):
+        expiration_time = self.created_at + timedelta(minutes=2)
+        return timezone.now() > expiration_time
+
+    @staticmethod
+    def generate_code():
+        return f"{random.randint(100000, 999999)}"

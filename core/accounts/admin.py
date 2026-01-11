@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User
+from .models.users import User,OTP
+from .models.profiles import Profile
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
@@ -32,3 +33,26 @@ class UserAdmin(BaseUserAdmin):
             "fields": ("phone", "password1", "password2",  "role"),
         }),
     )
+
+
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'first_name', 'last_name', 'created_date')
+    search_fields = ('user__phone', 'first_name', 'last_name')
+    ordering = ('-created_date',)
+
+
+# ----------------------------
+# OTP admin (فقط readonly)
+# ----------------------------
+
+@admin.register(OTP)
+class OTPAdmin(admin.ModelAdmin):
+    list_display = ('user', 'code', 'is_used', 'created_at', 'expired_status')
+    readonly_fields = ('user', 'code', 'is_used', 'created_at')
+
+    def expired_status(self, obj):
+        return "منقضی شده" if obj.is_expired() else "فعال"
+    expired_status.short_description = "وضعیت انقضا"
+    expired_status.admin_order_field = 'created_at'
