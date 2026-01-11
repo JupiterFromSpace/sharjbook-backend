@@ -22,19 +22,6 @@ class LoginSerializer(serializers.ModelSerializer):
 
 
 
-class ShowProfileSerializer(serializers.ModelSerializer):
-    
-    phone = serializers.CharField(source="user.phone", read_only=True)
-    class Meta:
-        model = Profile
-        fields = (
-            'first_name',
-            'last_name',
-            'image',
-            'discription',
-            'email',
-            'phone',
-        )
 
 
 

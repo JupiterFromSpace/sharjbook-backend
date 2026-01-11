@@ -1,7 +1,8 @@
 from rest_framework.views import APIView
+from rest_framework import generics
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .serializers import LoginSerializer, UpdateProfileSerializer, ShowProfileSerializer
+from .serializers import LoginSerializer, UpdateProfileSerializer
 from core.utils.responses import SuccessResponse, ErrorResponse, ServerErrorResponse
 from ...models.profiles import Profile
 
@@ -85,17 +86,17 @@ class LogoutView(APIView):
     
 
 
-class UpdateProfileView(APIView):
+class UpdateProfileView(generics.RetrieveUpdateAPIView):
     """Update user profile with optional fields."""
     
     permission_classes = (IsAuthenticated)
+    serializer= UpdateProfileSerializer
     
     def get_object(self):
         return self.request.user.profile
     
     def patch(self,request,*args,**kwargs):
         try:
-            serializer= UpdateProfileSerializer
             profile = self.get_object()
             serializer = self.get_serializer(profile, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
