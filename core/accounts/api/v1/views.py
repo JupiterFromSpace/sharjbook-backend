@@ -110,5 +110,5 @@ class UpdateProfileView(generics.RetrieveUpdateAPIView):
                 status_code= 400,
                 message="پروفایل پیدا نشد"
             )
-        except Exception as e:
+        except Exception:
             return ServerErrorResponse()
