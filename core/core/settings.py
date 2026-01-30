@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'finance',
     'rest_framework',
     'corsheaders',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -203,3 +204,11 @@ CELERY_TIMEZONE = 'UTC'
 
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = os.getenv("REDIS_PORT", "6379")
+
+
+
+
+
+GHASEDAK_API_KEY = "b624567e75a8aa12e39d84703a027bd28cb7f8bcc2faeea2e7d90cc3f6b14294TUg94WUwqgppR9ce"
+GHASEDAK_BASE_URL = "https://gateway.ghasedak.me/rest/api/v1/WebService"
+GHASEDAK_TEMPLATE_NAME = "login_code"  # همون templateName

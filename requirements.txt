@@ -8,8 +8,10 @@ psycopg2-binary>=2.9
 # third party modules
 djangorestframework_simplejwt
 django-cors-headers
+drf-yasg[validation]
 
 requests
 redis
 celery>=5.3
 gunicorn>=20.1.0
+ghasedak
