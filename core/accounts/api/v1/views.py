@@ -27,18 +27,10 @@ class LoginView(APIView):
             data={
                 "phone": user.phone,
                 "access": str(refresh.access_token),
+                "refresh":str(refresh)
             }
         )
-
-        response.set_cookie(
-            key="refresh",
-            value=str(refresh),
-            httponly=True,
-            secure=False,          
-            samesite="Lax",    
-            max_age=60 * 60 * 24 * 7 
-        )
-
+        
         return response
 
 
@@ -48,7 +40,7 @@ class RefreshTokenView(APIView):
     throttle_scope = 'refresh'
     
     def post(self, request):
-        refresh_token = request.COOKIES.get("refresh")
+        refresh_token = request.get("refresh")
 
         if not refresh_token:
             return ErrorResponse.send(
@@ -89,7 +81,7 @@ class LogoutView(APIView):
 class UpdateProfileView(generics.RetrieveUpdateAPIView):
     """Update user profile with optional fields."""
     
-    permission_classes = (IsAuthenticated)
+    permission_classes = (IsAuthenticated,)
     serializer= UpdateProfileSerializer
     
     def get_object(self):

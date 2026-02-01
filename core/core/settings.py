@@ -68,7 +68,8 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.ScopedRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'default': '60/min',
+        'default': '30/min',
+        'anon':'5/min',
 
         'login': '5/min',
         'refresh': '5/min',
@@ -209,6 +210,4 @@ REDIS_PORT = os.getenv("REDIS_PORT", "6379")
 
 
 
-GHASEDAK_API_KEY = "b624567e75a8aa12e39d84703a027bd28cb7f8bcc2faeea2e7d90cc3f6b14294TUg94WUwqgppR9ce"
-GHASEDAK_BASE_URL = "https://gateway.ghasedak.me/rest/api/v1/WebService"
-GHASEDAK_TEMPLATE_NAME = "login_code"  # همون templateName
+
