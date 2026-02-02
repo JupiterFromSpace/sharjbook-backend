@@ -11,9 +11,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
       - name: Install deps
         run: pip install -r requirements.txt
+
       - name: Run migrations
+        working-directory: core
         run: python manage.py migrate
+
       - name: Run tests
+        working-directory: core
         run: pytest
