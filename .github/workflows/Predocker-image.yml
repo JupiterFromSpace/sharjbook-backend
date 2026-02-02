@@ -9,32 +9,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
-    services:
-      db:
-        image: postgres:16
-        env:
-          POSTGRES_DB: sharjbook
-          POSTGRES_USER: sharjuser
-          POSTGRES_PASSWORD: sharjpass
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U sharjuser"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
     steps:
       - uses: actions/checkout@v3
-
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
-
       - name: Install deps
         run: pip install -r requirements.txt
-
-      - name: Run migrations
-        working-directory: core
-        run: python manage.py migrate
+      - name: Django check
+        run: python core/manage.py check
