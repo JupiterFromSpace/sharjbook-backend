@@ -14,4 +14,3 @@ requests
 redis
 celery>=5.3
 gunicorn>=20.1.0
-ghasedak
