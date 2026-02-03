@@ -5,7 +5,7 @@ from .users import User
 
 class Profile(models.Model):
     
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="پروفایل")
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     first_name = models.CharField(max_length=150, verbose_name='نام')
     last_name = models.CharField(max_length=150, verbose_name='نام خانوادگی')
     image = models.ImageField(blank=True, null=True, verbose_name='عکس شخصی')
@@ -24,3 +24,4 @@ class Profile(models.Model):
 def save_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
+        

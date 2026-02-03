@@ -31,7 +31,7 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
     
     phone = serializers.CharField(source="user.phone", read_only=True)
     
-    class meta:
+    class Meta:
         model = Profile
         fields = (
             'first_name',
@@ -39,6 +39,6 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
             'image',
             'phone',
             'email',
-            'description',
+            'discription',
         )
         read_only_fields = ['phone']

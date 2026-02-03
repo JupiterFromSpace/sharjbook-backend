@@ -64,7 +64,7 @@ class RefreshTokenView(APIView):
             )
 
 
-
+# repair this endpoint !
 class LogoutView(APIView):
     throttle_scope = 'logout'
     
@@ -82,7 +82,8 @@ class UpdateProfileView(generics.RetrieveUpdateAPIView):
     """Update user profile with optional fields."""
     
     permission_classes = (IsAuthenticated,)
-    serializer= UpdateProfileSerializer
+    serializer_class = UpdateProfileSerializer
+
     
     def get_object(self):
         return self.request.user.profile
