@@ -83,6 +83,7 @@ class UpdateProfileView(generics.RetrieveUpdateAPIView):
     
     permission_classes = (IsAuthenticated,)
     serializer_class = UpdateProfileSerializer
+    http_method_names = ["get", "patch"]
 
     
     def get_object(self):
