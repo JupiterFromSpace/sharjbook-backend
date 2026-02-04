@@ -1,0 +1,19 @@
+# the new flake config for projects ! 
+
+[flake8]
+
+exclude =
+    migrations,
+    .git,
+    .gitignore,
+    *.pot,
+    *.py[co],
+    __pycache__,
+    venv,
+    .env,
+    settings.py,
+    __init__.py,
+
+ignore =
+    E501,
+    W503

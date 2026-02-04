@@ -7,14 +7,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0002_alter_user_managers_remove_user_username_and_more'),
-        ('buildings', '0003_alter_building_residents'),
+        ("accounts", "0002_alter_user_managers_remove_user_username_and_more"),
+        ("buildings", "0003_alter_building_residents"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='active_building',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='active_users', to='buildings.building', verbose_name='ساختمان فعال کاربر'),
+            model_name="user",
+            name="active_building",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="active_users",
+                to="buildings.building",
+                verbose_name="ساختمان فعال کاربر",
+            ),
         ),
     ]

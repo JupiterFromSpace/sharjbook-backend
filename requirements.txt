@@ -7,10 +7,24 @@ psycopg2-binary>=2.9
 
 # third party modules
 djangorestframework_simplejwt
+django-filter
 django-cors-headers
 drf-yasg[validation]
 
+# deployment moduls
+gunicorn>=20.1.0
+
+
+# refactoring and tests
+black
+flake8
+pytest
+pytest-django
+Faker
+
+
+# background proccess and cache
 requests
 redis
 celery>=5.3
-gunicorn>=20.1.0
+django-redis

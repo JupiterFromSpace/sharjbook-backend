@@ -8,22 +8,51 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('buildings', '0001_initial'),
-        ('finance', '0001_initial'),
+        ("buildings", "0001_initial"),
+        ("finance", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='BuildingFund',
+            name="BuildingFund",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('balance', models.DecimalField(decimal_places=2, default=0, max_digits=15, verbose_name='موجودی صندوق (ریال)')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='آخرین به\u200cروزرسانی')),
-                ('building', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='fund', to='buildings.building', verbose_name='ساختمان')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "balance",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0,
+                        max_digits=15,
+                        verbose_name="موجودی صندوق (ریال)",
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, verbose_name="آخرین به\u200cروزرسانی"
+                    ),
+                ),
+                (
+                    "building",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="fund",
+                        to="buildings.building",
+                        verbose_name="ساختمان",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'صندوق ساختمان',
-                'verbose_name_plural': 'صندوق\u200cهای ساختمان',
+                "verbose_name": "صندوق ساختمان",
+                "verbose_name_plural": "صندوق\u200cهای ساختمان",
             },
         ),
     ]

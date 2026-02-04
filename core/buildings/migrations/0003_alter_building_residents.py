@@ -7,14 +7,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('buildings', '0002_building_monthly_charge_amount'),
+        ("buildings", "0002_building_monthly_charge_amount"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='building',
-            name='residents',
-            field=models.ManyToManyField(blank=True, related_name='residential_buildings', through='buildings.BuildingResident', through_fields=('building', 'resident'), to=settings.AUTH_USER_MODEL, verbose_name='ساکنین'),
+            model_name="building",
+            name="residents",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="residential_buildings",
+                through="buildings.BuildingResident",
+                through_fields=("building", "resident"),
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="ساکنین",
+            ),
         ),
     ]

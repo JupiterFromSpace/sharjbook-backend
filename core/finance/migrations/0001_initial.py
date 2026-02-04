@@ -12,64 +12,211 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('buildings', '0001_initial'),
+        ("buildings", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Debt',
+            name="Debt",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('title', models.CharField(max_length=200, verbose_name='عنوان بدهی')),
-                ('amount_due', models.DecimalField(decimal_places=2, max_digits=15, validators=[django.core.validators.MinValueValidator(0)], verbose_name='مبلغ بدهی')),
-                ('due_date', models.DateField(verbose_name='تاریخ سررسید')),
-                ('is_paid', models.BooleanField(default=False, verbose_name='پرداخت شده؟')),
-                ('building', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='debts', to='buildings.building', verbose_name='ساختمان')),
-                ('resident', models.ForeignKey(limit_choices_to={'role': 'RESIDENT'}, on_delete=django.db.models.deletion.CASCADE, related_name='debts', to=settings.AUTH_USER_MODEL, verbose_name='ساکن بدهکار')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("title", models.CharField(max_length=200, verbose_name="عنوان بدهی")),
+                (
+                    "amount_due",
+                    models.DecimalField(
+                        decimal_places=2,
+                        max_digits=15,
+                        validators=[django.core.validators.MinValueValidator(0)],
+                        verbose_name="مبلغ بدهی",
+                    ),
+                ),
+                ("due_date", models.DateField(verbose_name="تاریخ سررسید")),
+                (
+                    "is_paid",
+                    models.BooleanField(default=False, verbose_name="پرداخت شده؟"),
+                ),
+                (
+                    "building",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="debts",
+                        to="buildings.building",
+                        verbose_name="ساختمان",
+                    ),
+                ),
+                (
+                    "resident",
+                    models.ForeignKey(
+                        limit_choices_to={"role": "RESIDENT"},
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="debts",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="ساکن بدهکار",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'بدهی',
-                'verbose_name_plural': 'بدهی\u200cها',
-                'ordering': ['due_date'],
+                "verbose_name": "بدهی",
+                "verbose_name_plural": "بدهی\u200cها",
+                "ordering": ["due_date"],
             },
         ),
         migrations.CreateModel(
-            name='Transaction',
+            name="Transaction",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('transaction_type', models.CharField(choices=[('INCOME', 'درآمد'), ('EXPENSE', 'هزینه'), ('DEBT', 'بدهی')], max_length=10, verbose_name='نوع تراکنش')),
-                ('title', models.CharField(max_length=200, verbose_name='عنوان تراکنش')),
-                ('description', models.TextField(blank=True, null=True, verbose_name='توضیحات')),
-                ('amount', models.DecimalField(decimal_places=2, max_digits=15, verbose_name='مبلغ (ریال)')),
-                ('date', models.DateField(verbose_name='تاریخ تراکنش')),
-                ('is_paid', models.BooleanField(default=False, verbose_name='پرداخت شده؟')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ثبت')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='آخرین تغییر')),
-                ('building', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='transactions', to='buildings.building', verbose_name='مدیر ساختمان')),
-                ('created_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='created_transactions', to=settings.AUTH_USER_MODEL, verbose_name='ایجاد کننده')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "transaction_type",
+                    models.CharField(
+                        choices=[
+                            ("INCOME", "درآمد"),
+                            ("EXPENSE", "هزینه"),
+                            ("DEBT", "بدهی"),
+                        ],
+                        max_length=10,
+                        verbose_name="نوع تراکنش",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(max_length=200, verbose_name="عنوان تراکنش"),
+                ),
+                (
+                    "description",
+                    models.TextField(blank=True, null=True, verbose_name="توضیحات"),
+                ),
+                (
+                    "amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="مبلغ (ریال)"
+                    ),
+                ),
+                ("date", models.DateField(verbose_name="تاریخ تراکنش")),
+                (
+                    "is_paid",
+                    models.BooleanField(default=False, verbose_name="پرداخت شده؟"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ثبت"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="آخرین تغییر"),
+                ),
+                (
+                    "building",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="transactions",
+                        to="buildings.building",
+                        verbose_name="مدیر ساختمان",
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="created_transactions",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="ایجاد کننده",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'تراکنش مالی',
-                'verbose_name_plural': 'تراکنش\u200cها',
-                'ordering': ['-date', '-created_at'],
+                "verbose_name": "تراکنش مالی",
+                "verbose_name_plural": "تراکنش\u200cها",
+                "ordering": ["-date", "-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='Payment',
+            name="Payment",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('amount_paid', models.DecimalField(decimal_places=2, max_digits=15, verbose_name='مبلغ پرداختی')),
-                ('paid_at', models.DateTimeField(auto_now_add=True, verbose_name='تاریخ پرداخت')),
-                ('reference_code', models.CharField(blank=True, max_length=100, null=True, verbose_name='کد پیگیری بانکی')),
-                ('method', models.CharField(choices=[('CASH', 'نقدی'), ('BANK', 'واریز بانکی'), ('ONLINE', 'پرداخت آنلاین')], max_length=50, verbose_name='روش پرداخت')),
-                ('resident', models.ForeignKey(limit_choices_to={'role': 'RESIDENT'}, on_delete=django.db.models.deletion.CASCADE, related_name='payments', to=settings.AUTH_USER_MODEL, verbose_name='ساکن پرداخت\u200cکننده')),
-                ('transaction', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='payments', to='finance.transaction', verbose_name='تراکنش مربوطه')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "amount_paid",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=15, verbose_name="مبلغ پرداختی"
+                    ),
+                ),
+                (
+                    "paid_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="تاریخ پرداخت"
+                    ),
+                ),
+                (
+                    "reference_code",
+                    models.CharField(
+                        blank=True,
+                        max_length=100,
+                        null=True,
+                        verbose_name="کد پیگیری بانکی",
+                    ),
+                ),
+                (
+                    "method",
+                    models.CharField(
+                        choices=[
+                            ("CASH", "نقدی"),
+                            ("BANK", "واریز بانکی"),
+                            ("ONLINE", "پرداخت آنلاین"),
+                        ],
+                        max_length=50,
+                        verbose_name="روش پرداخت",
+                    ),
+                ),
+                (
+                    "resident",
+                    models.ForeignKey(
+                        limit_choices_to={"role": "RESIDENT"},
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="payments",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="ساکن پرداخت\u200cکننده",
+                    ),
+                ),
+                (
+                    "transaction",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="payments",
+                        to="finance.transaction",
+                        verbose_name="تراکنش مربوطه",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'پرداخت',
-                'verbose_name_plural': 'پرداخت\u200cها',
-                'ordering': ['-paid_at'],
+                "verbose_name": "پرداخت",
+                "verbose_name_plural": "پرداخت\u200cها",
+                "ordering": ["-paid_at"],
             },
         ),
     ]

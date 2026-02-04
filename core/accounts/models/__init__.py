@@ -1,2 +1,2 @@
-from .users import User,OTP
+from .users import User, OTP
 from .profiles import Profile

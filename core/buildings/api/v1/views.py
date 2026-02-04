@@ -7,11 +7,7 @@ from django.shortcuts import get_object_or_404
 
 from finance.models import Debt
 from buildings.models import Building, BuildingResident
-from core.utils.responses import (
-    SuccessResponse,
-    ErrorResponse,
-    ServerErrorResponse
-)
+from core.utils.responses import SuccessResponse, ErrorResponse, ServerErrorResponse
 from .serializers import (
     CreateBuildingSerializer,
     BuildingListSerializer,
@@ -21,8 +17,8 @@ from .serializers import (
 )
 
 import logging
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
 
 
 class CreateBuildingView(APIView):
@@ -31,33 +27,26 @@ class CreateBuildingView(APIView):
     def post(self, request):
         try:
             serializer = CreateBuildingSerializer(
-                data=request.data,
-                context={"request": request}
-        )
-
+                data=request.data, context={"request": request}
+            )
 
             if not serializer.is_valid():
                 return ErrorResponse.send(
-                    message="اطلاعات وارد شده نامعتبر است",
-                    errors=serializer.errors
+                    message="اطلاعات وارد شده نامعتبر است", errors=serializer.errors
                 )
 
             building = serializer.save()
 
             return SuccessResponse.send(
                 message="ساختمان با موفقیت ایجاد شد",
-                data={
-                    "building_id": building.id,
-                    "name": building.name
-                },
-                status_code=201
+                data={"building_id": building.id, "name": building.name},
+                status_code=201,
             )
 
-        except Exception :
+        except Exception:
             return ServerErrorResponse.send()
 
-    
-    
+
 class ShowBuildingsView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -65,12 +54,11 @@ class ShowBuildingsView(APIView):
         user = request.user
 
         buildings = (
-            Building.objects
-            .filter(
-                Q(manager=user) |
-                Q(
+            Building.objects.filter(
+                Q(manager=user)
+                | Q(
                     building_residents__resident=user,
-                    building_residents__is_approved=True
+                    building_residents__is_approved=True,
                 )
             )
             .select_related("manager")
@@ -79,18 +67,12 @@ class ShowBuildingsView(APIView):
         )
 
         serializer = BuildingListSerializer(
-            buildings,
-            many=True,
-            context={"request": request}
+            buildings, many=True, context={"request": request}
         )
 
         return SuccessResponse.send(
-            message="لیست ساختمان‌ها با موفقیت دریافت شد",
-            data=serializer.data
+            message="لیست ساختمان‌ها با موفقیت دریافت شد", data=serializer.data
         )
-
-
-
 
 
 class AddResidentView(APIView):
@@ -101,26 +83,20 @@ class AddResidentView(APIView):
             try:
                 building = Building.objects.get(id=building_id)
             except Building.DoesNotExist:
-                return ErrorResponse.send(
-                    message="ساختمان یافت نشد",
-                    status_code=404
-                )
+                return ErrorResponse.send(message="ساختمان یافت نشد", status_code=404)
 
             if building.manager_id != request.user.id:
                 return ErrorResponse.send(
-                    message="شما مدیر این ساختمان نیستید",
-                    status_code=403
+                    message="شما مدیر این ساختمان نیستید", status_code=403
                 )
 
             serializer = AddResidentSerializer(
-                data=request.data,
-                context={"building": building, "request": request}
+                data=request.data, context={"building": building, "request": request}
             )
 
             if not serializer.is_valid():
                 return ErrorResponse.send(
-                    message="اطلاعات وارد شده نامعتبر است",
-                    errors=serializer.errors
+                    message="اطلاعات وارد شده نامعتبر است", errors=serializer.errors
                 )
 
             resident = serializer.save()
@@ -134,19 +110,16 @@ class AddResidentView(APIView):
                     "unit": resident.unit,
                     "monthly_charge_amount": str(resident.monthly_charge_amount),
                 },
-                status_code=201
+                status_code=201,
             )
 
         except Exception:
             return ServerErrorResponse.send()
 
 
-
-
-
 class ListResidentPagination(PageNumberPagination):
     page_size = 10
-    page_size_query_param = 'page_size'
+    page_size_query_param = "page_size"
     max_page_size = 100
 
 
@@ -158,15 +131,11 @@ class ListResidentView(APIView):
             try:
                 building = Building.objects.get(id=building_id)
             except Building.DoesNotExist:
-                return ErrorResponse.send(
-                    message="ساختمان یافت نشد",
-                    status_code=404
-                )
+                return ErrorResponse.send(message="ساختمان یافت نشد", status_code=404)
 
             if building.manager_id != request.user.id:
                 return ErrorResponse.send(
-                    message="شما مدیر این ساختمان نیستید",
-                    status_code=403
+                    message="شما مدیر این ساختمان نیستید", status_code=403
                 )
 
             queryset = BuildingResident.objects.filter(
@@ -179,13 +148,11 @@ class ListResidentView(APIView):
             serializer = ListResidentSerializer(page, many=True)
 
             return SuccessResponse.send(
-                message="لیست ساکنین با موفقیت دریافت شد",
-                data=serializer.data
+                message="لیست ساکنین با موفقیت دریافت شد", data=serializer.data
             )
 
         except Exception:
             return ServerErrorResponse.send()
-
 
 
 class TransferDebtsView(APIView):
@@ -202,7 +169,7 @@ class TransferDebtsView(APIView):
         data = serializer.validated_data
 
         # حداقل یکی از فیلدها باید تغییر کند
-        if not any(field in data for field in ['first_name', 'last_name', 'phone']):
+        if not any(field in data for field in ["first_name", "last_name", "phone"]):
             return ErrorResponse.send(message="حداقل یکی از فیلدها باید تغییر کند")
 
         try:
@@ -211,11 +178,11 @@ class TransferDebtsView(APIView):
                 Debt.objects.filter(
                     building=resident_relation.building,
                     unit_number=resident_relation.unit,
-                    responsible=resident
+                    responsible=resident,
                 ).update(responsible=owner)
 
                 # بروزرسانی اطلاعات ساکن
-                for field in ['first_name', 'last_name', 'phone']:
+                for field in ["first_name", "last_name", "phone"]:
                     if field in data:
                         setattr(resident, field, data[field])
                 resident.save()

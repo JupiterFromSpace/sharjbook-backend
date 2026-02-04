@@ -5,47 +5,36 @@ from rest_framework.pagination import PageNumberPagination
 from finance.models import BuildingFund, Debt, Transaction
 from buildings.models import Building
 
-from core.utils.responses import (
-    SuccessResponse,
-    ErrorResponse,
-    ServerErrorResponse
-)
+from core.utils.responses import SuccessResponse, ErrorResponse, ServerErrorResponse
 
 from .serializers import (
     ListBuildingFundSerializer,
     ShowDemandFromResidentsSerializer,
     ShowDebtorsListSerializer,
-    TransactionListSerializer
+    TransactionListSerializer,
 )
 
-#______________________
+# ______________________
 
 
 def get_building_for_user(user, building_id):
     try:
         building = Building.objects.get(id=building_id)
     except Building.DoesNotExist:
-        return None, ErrorResponse.send(
-            message="ساختمان یافت نشد",
-            status_code=404
-        )
+        return None, ErrorResponse.send(message="ساختمان یافت نشد", status_code=404)
 
     if building.manager == user:
         return building, None
 
-    if building.building_residents.filter(
-        resident=user,
-        is_approved=True
-    ).exists():
+    if building.building_residents.filter(resident=user, is_approved=True).exists():
         return building, None
 
     return None, ErrorResponse.send(
-        message="شما به این ساختمان دسترسی ندارید",
-        status_code=403
+        message="شما به این ساختمان دسترسی ندارید", status_code=403
     )
 
-#_____________________________________________________
 
+# _____________________________________________________
 
 
 class ListBuildingFundView(APIView):
@@ -62,18 +51,13 @@ class ListBuildingFundView(APIView):
 
             return SuccessResponse.send(
                 message="اطلاعات صندوق ساختمان با موفقیت دریافت شد",
-                data=serializer.data
+                data=serializer.data,
             )
 
         except Exception:
             return ServerErrorResponse.send()
 
 
-
-    
-    
-    
-    
 class ShowDemandFromResidentsView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -87,24 +71,19 @@ class ShowDemandFromResidentsView(APIView):
             serializer = ShowDemandFromResidentsSerializer(debts, many=True)
 
             return SuccessResponse.send(
-                message="لیست بدهی‌ها با موفقیت دریافت شد",
-                data=serializer.data
+                message="لیست بدهی‌ها با موفقیت دریافت شد", data=serializer.data
             )
 
         except Exception:
             return ServerErrorResponse.send()
 
 
-
-    
-    
-    
-    
 class ListPagination(PageNumberPagination):
     page_size = 3
-    page_size_query_param = 'page_size'
+    page_size_query_param = "page_size"
     max_page_size = 100
-       
+
+
 class ShowDebtorsListView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -114,25 +93,18 @@ class ShowDebtorsListView(APIView):
             if error:
                 return error
 
-            queryset = Debt.objects.filter(
-                building=building,
-                is_paid=False
-            )
+            queryset = Debt.objects.filter(building=building, is_paid=False)
 
             paginator = ListPagination()
             page = paginator.paginate_queryset(queryset, request)
             serializer = ShowDebtorsListSerializer(page, many=True)
 
             return SuccessResponse.send(
-                message="لیست بدهکاران با موفقیت دریافت شد",
-                data=serializer.data
+                message="لیست بدهکاران با موفقیت دریافت شد", data=serializer.data
             )
 
         except Exception:
             return ServerErrorResponse.send()
-
-
-
 
 
 class ListIncomeTransactionsView(APIView):
@@ -145,8 +117,7 @@ class ListIncomeTransactionsView(APIView):
                 return error
 
             queryset = Transaction.objects.filter(
-                building=building,
-                transaction_type=Transaction.TransactionTypes.INCOME
+                building=building, transaction_type=Transaction.TransactionTypes.INCOME
             )
 
             paginator = ListPagination()
@@ -154,16 +125,12 @@ class ListIncomeTransactionsView(APIView):
             serializer = TransactionListSerializer(page, many=True)
 
             return SuccessResponse.send(
-                message="لیست درآمدها با موفقیت دریافت شد",
-                data=serializer.data
+                message="لیست درآمدها با موفقیت دریافت شد", data=serializer.data
             )
 
         except Exception:
             return ServerErrorResponse.send()
 
-
-        
-        
 
 class ListExpenseTransactionsView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -175,8 +142,7 @@ class ListExpenseTransactionsView(APIView):
                 return error
 
             queryset = Transaction.objects.filter(
-                building=building,
-                transaction_type=Transaction.TransactionTypes.EXPENSE
+                building=building, transaction_type=Transaction.TransactionTypes.EXPENSE
             )
 
             paginator = ListPagination()
@@ -184,10 +150,8 @@ class ListExpenseTransactionsView(APIView):
             serializer = TransactionListSerializer(page, many=True)
 
             return SuccessResponse.send(
-                message="لیست هزینه‌ها با موفقیت دریافت شد",
-                data=serializer.data
+                message="لیست هزینه‌ها با موفقیت دریافت شد", data=serializer.data
             )
 
         except Exception:
             return ServerErrorResponse.send()
-

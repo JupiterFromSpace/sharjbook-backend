@@ -8,19 +8,29 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finance', '0002_buildingfund'),
+        ("finance", "0002_buildingfund"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='debt',
-            name='resident',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='debts', to=settings.AUTH_USER_MODEL, verbose_name='کاربر بدهکار'),
+            model_name="debt",
+            name="resident",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="debts",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="کاربر بدهکار",
+            ),
         ),
         migrations.AlterField(
-            model_name='payment',
-            name='resident',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='payments', to=settings.AUTH_USER_MODEL, verbose_name='پرداخت\u200cکننده'),
+            model_name="payment",
+            name="resident",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="payments",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="پرداخت\u200cکننده",
+            ),
         ),
     ]

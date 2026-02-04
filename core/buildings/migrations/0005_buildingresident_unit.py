@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('buildings', '0004_buildingresident_monthly_charge_amount'),
+        ("buildings", "0004_buildingresident_monthly_charge_amount"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='buildingresident',
-            name='unit',
-            field=models.PositiveIntegerField(default=1, verbose_name='واحد'),
+            model_name="buildingresident",
+            name="unit",
+            field=models.PositiveIntegerField(default=1, verbose_name="واحد"),
             preserve_default=False,
         ),
     ]

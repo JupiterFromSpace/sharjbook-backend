@@ -6,13 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('buildings', '0001_initial'),
+        ("buildings", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='building',
-            name='monthly_charge_amount',
-            field=models.DecimalField(decimal_places=2, default=0, max_digits=15, verbose_name='مبلغ شارژ ماهیانه (ریال)'),
+            model_name="building",
+            name="monthly_charge_amount",
+            field=models.DecimalField(
+                decimal_places=2,
+                default=0,
+                max_digits=15,
+                verbose_name="مبلغ شارژ ماهیانه (ریال)",
+            ),
         ),
     ]
