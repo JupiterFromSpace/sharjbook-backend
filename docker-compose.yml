@@ -22,8 +22,9 @@ services:
       - "8000:8000"
     depends_on:
       - db
+    env_file:
+      - .env
     environment:
-      - SECRET_KEY=test
       - DEBUG=True
       - DB_NAME=sharjbook
       - DB_USER=sharjuser
@@ -53,6 +54,8 @@ services:
     depends_on:
       - redis
       - backend
+    env_file:
+      - .env
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
