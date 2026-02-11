@@ -7,7 +7,7 @@ from .views import (
     TransferDebtsView,
 )
 
-app_name = "buildings"
+app_name = "api-v1"
 
 urlpatterns = [
     path("create/", CreateBuildingView.as_view(), name="building-create"),
