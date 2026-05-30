@@ -2,20 +2,30 @@ from rest_framework import serializers
 from accounts.models import User, Profile
 
 
-class LoginSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ("phone",)
-        extra_kwargs = {"phone": {"validators": []}}
 
-    def create(self, validated_data):
-        phone = validated_data["phone"]
+class RequestOTPSerializer(serializers.Serializer):
+    phone = serializers.CharField()
 
-        user, created = User.objects.get_or_create(phone=phone)
+    def validate_phone(self, value):
+        if not value.startswith("+98"):
+            raise serializers.ValidationError(
+                "شماره موبایل باید با +98 شروع شود"
+            )
 
-        self.context["created"] = created
+        return value
 
-        return user
+
+class VerifyOTPSerializer(serializers.Serializer):
+    phone = serializers.CharField()
+    code = serializers.CharField(max_length=6)
+
+    def validate_phone(self, value):
+        if not value.startswith("+98"):
+            raise serializers.ValidationError(
+                "شماره موبایل باید با +98 شروع شود"
+            )
+
+        return value
 
 
 class UpdateProfileSerializer(serializers.ModelSerializer):

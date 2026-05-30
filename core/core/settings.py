@@ -199,3 +199,7 @@ CACHES = {
         },
     }
 }
+
+
+
+SMS_IR_API_KEY = os.getenv("SMS_IR_API_KEY")
