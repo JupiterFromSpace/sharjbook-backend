@@ -12,7 +12,7 @@ from accounts.services.sms import send_otp
 
 class RequestOTPView(APIView):
     permission_classes = (AllowAny,)
-    throttle_scope = "otp"
+    throttle_scope = "login"
 
     def post(self, request):
 
@@ -33,24 +33,6 @@ class RequestOTPView(APIView):
             user, _ = User.objects.get_or_create(
                 phone=phone
             )
-
-            last_otp = (
-                OTP.objects
-                .filter(user=user)
-                .order_by("-created_at")
-                .first()
-            )
-
-            if last_otp:
-
-                diff = timezone.now() - last_otp.created_at
-
-                if diff < timedelta(seconds=60):
-
-                    return ErrorResponse.send(
-                        message="لطفا یک دقیقه بعد دوباره تلاش کنید",
-                        status_code=429,
-                    )
 
             code = OTP.generate_code()
 
@@ -74,7 +56,7 @@ class RequestOTPView(APIView):
         
 class VerifyOTPView(APIView):
         permission_classes = (AllowAny,)
-        throttle_scope = "verify_otp"
+        throttle_scope = "login"
 
         def post(self, request):
         
