@@ -27,12 +27,8 @@ services:
       - media_volume:/app/media
     expose:
       - "8000"
-    ports:
-      - "8000:8000"
     depends_on:
       - db
-    env_file:
-      - .env
     environment:
       - DEBUG=False
       - DB_NAME=sharjbook
