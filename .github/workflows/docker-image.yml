@@ -47,6 +47,6 @@ jobs:
 
             docker-compose -f docker-compose-stage.yml down
 
-            git pull
+            git pull origin main
 
             docker-compose -f docker-compose-stage.yml restart
