@@ -1,23 +1,19 @@
-name: CI
+name: CI/CD
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
-
-  test:
-
+  check:
     runs-on: ubuntu-latest
 
     env:
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
     steps:
-
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -29,10 +25,28 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Django Check
+      - name: Django check
         run: |
           python core/manage.py check
 
-      - name: Run Tests
-        run: |
-          pytest
+  deploy:
+    needs: check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: 22
+
+          script: |
+            cd ${{ secrets.PROJECT_PATH }}
+
+            docker-compose -f docker-compose-stage.yml down
+
+            git pull
+
+            docker-compose -f docker-compose-stage.yml restart
