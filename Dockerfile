@@ -8,8 +8,12 @@ WORKDIR /app
 
 COPY requirements.txt /app/
 
-RUN pip3 install --upgrade pip
-RUN pip3 install --default-timeout=120 -r requirements.txt
+RUN pip3 install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+RUN pip3 install \
+    --default-timeout=300 \
+    -i https://pypi.tuna.tsinghua.edu.cn/simple \
+    -r requirements.txt
 
 
 COPY ./core /app/
