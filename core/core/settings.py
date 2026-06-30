@@ -175,6 +175,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://188.121.122.229:3000",
+    "http://188.121.122.229",
 ]
 # دامنه‌ی فرانت روی سرور استیج/پروداکشن رو از env اضافه کن، مثلاً:
 # FRONTEND_URL=https://app.sharjbook.ir
