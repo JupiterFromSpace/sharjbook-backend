@@ -8,20 +8,20 @@ from .models.profiles import Profile
 class UserAdmin(BaseUserAdmin):
 
     # چون username نداریم، باید ordering را تغییر دهیم
-    ordering = ("phone",)
+    ordering = ("email",)
 
     # فیلدهایی که در لیست نمایش داده می‌شود
-    list_display = ("id", "first_name", "last_name", "phone", "role", "is_active")
+    list_display = ("id", "first_name", "last_name", "email", "phone", "role", "is_active")
 
     # فیلترهای سایدبار
     list_filter = ("role", "is_active")
 
     # فیلدهای قابل جستجو
-    search_fields = ("first_name", "last_name", "phone")
+    search_fields = ("first_name", "last_name", "email", "phone")
 
     # بازنویسی کامل fieldsets
     fieldsets = (
-        (None, {"fields": ("phone", "password")}),
+        (None, {"fields": ("email", "phone", "password")}),
         ("اطلاعات شخصی", {"fields": ("first_name", "last_name")}),
         (
             "نقش و دسترسی‌ها",
@@ -36,7 +36,7 @@ class UserAdmin(BaseUserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("phone", "password1", "password2", "role"),
+                "fields": ("email", "phone", "password1", "password2", "role"),
             },
         ),
     )
