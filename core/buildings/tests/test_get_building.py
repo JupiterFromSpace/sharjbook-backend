@@ -23,7 +23,7 @@ User = get_user_model()
 @pytest.mark.django_db
 def test_get_buildings_authenticated_user_returns_200():
     user = User.objects.create_user(
-        phone="1234"
+        email="test@example.com"
     )
 
     client = APIClient()

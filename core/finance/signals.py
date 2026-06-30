@@ -9,7 +9,7 @@ def update_fund_on_transaction(sender, instance, created, **kwargs):
     """
     وقتی تراکنش جدید ساخته شد، صندوق ساختمان رو به‌روزرسانی کن
     """
-    if created and instance.is_paid:
+    if created:
         fund, _ = BuildingFund.objects.get_or_create(building=instance.building)
         fund.apply_transaction(instance)
 

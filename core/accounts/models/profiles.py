@@ -13,13 +13,12 @@ class Profile(models.Model):
     discription = models.TextField(
         max_length=300, blank=True, verbose_name="توضیحات کاربر"
     )
-    email = models.EmailField(blank=True, null=True, max_length=100, unique=True)
 
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.first_name} - {self.last_name} - {self.email}"
+        return f"{self.first_name} - {self.last_name} - {self.user.email}"
 
 
 @receiver(post_save, sender=User)

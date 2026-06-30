@@ -8,7 +8,8 @@ from ...models.profiles import Profile
 from django.utils import timezone
 from datetime import timedelta
 from accounts.models import User, OTP
-from accounts.services.sms import send_otp
+from accounts.services.email import send_otp
+
 
 class RequestOTPView(APIView):
     permission_classes = (AllowAny,)
@@ -26,12 +27,12 @@ class RequestOTPView(APIView):
                 errors=serializer.errors,
             )
 
-        phone = serializer.validated_data["phone"]
+        email = serializer.validated_data["email"]
 
         try:
 
             user, _ = User.objects.get_or_create(
-                phone=phone
+                email=email
             )
 
             code = OTP.generate_code()
@@ -42,18 +43,18 @@ class RequestOTPView(APIView):
             )
 
             send_otp(
-                phone=phone,
+                email=email,
                 code=code,
             )
 
             return SuccessResponse.send(
-                message="کد تایید ارسال شد"
+                message="کد تایید به ایمیل شما ارسال شد"
             )
 
         except Exception:
             return ServerErrorResponse()
-        
-        
+
+
 class VerifyOTPView(APIView):
         permission_classes = (AllowAny,)
         throttle_scope = "login"
@@ -71,13 +72,13 @@ class VerifyOTPView(APIView):
                     errors=serializer.errors,
                 )
 
-            phone = serializer.validated_data["phone"]
+            email = serializer.validated_data["email"]
             code = serializer.validated_data["code"]
 
             try:
             
                 user = User.objects.get(
-                   phone=phone
+                   email=email
                 )
 
             except User.DoesNotExist:
@@ -120,7 +121,8 @@ class VerifyOTPView(APIView):
             return SuccessResponse.send(
                 message="ورود با موفقیت انجام شد",
                 data={
-                    "phone": user.phone,
+                    "email": user.email,
+                    "role": user.role,
                     "access": str(
                         refresh.access_token
                     ),
@@ -136,7 +138,7 @@ class RefreshTokenView(APIView):
         throttle_scope = "refresh"
 
         def post(self, request):
-            refresh_token = request.get("refresh")
+            refresh_token = request.data.get("refresh")
 
             if not refresh_token:
                 return ErrorResponse.send(message="توکن رفرش یافت نشد", status_code=401)
@@ -153,7 +155,6 @@ class RefreshTokenView(APIView):
                 return ErrorResponse.send(message="توکن نامعتبر است", status_code=401)
 
 
-    # repair this endpoint !
 class LogoutView(APIView):
         throttle_scope = "logout"
 

@@ -4,33 +4,18 @@ from accounts.models import User, Profile
 
 
 class RequestOTPSerializer(serializers.Serializer):
-    phone = serializers.CharField()
-
-    def validate_phone(self, value):
-        if not value.startswith("+98"):
-            raise serializers.ValidationError(
-                "شماره موبایل باید با +98 شروع شود"
-            )
-
-        return value
+    email = serializers.EmailField()
 
 
 class VerifyOTPSerializer(serializers.Serializer):
-    phone = serializers.CharField()
+    email = serializers.EmailField()
     code = serializers.CharField(max_length=6)
-
-    def validate_phone(self, value):
-        if not value.startswith("+98"):
-            raise serializers.ValidationError(
-                "شماره موبایل باید با +98 شروع شود"
-            )
-
-        return value
 
 
 class UpdateProfileSerializer(serializers.ModelSerializer):
     """Update profile fields partially (optional fields)."""
 
+    email = serializers.EmailField(source="user.email", read_only=True)
     phone = serializers.CharField(source="user.phone", read_only=True)
 
     class Meta:
@@ -43,4 +28,4 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
             "email",
             "discription",
         )
-        read_only_fields = ["phone"]
+        read_only_fields = ["phone", "email"]

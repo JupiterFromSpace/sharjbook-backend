@@ -19,7 +19,7 @@ class ShowDemandFromResidentsSerializer(serializers.ModelSerializer):
 
 
 class ShowDebtorsListSerializer(serializers.ModelSerializer):
-    resident_name = serializers.CharField(source="resident.full_name", read_only=True)
+    resident_name = serializers.CharField(source="responsible.full_name", read_only=True)
     building_name = serializers.CharField(source="building.name", read_only=True)
 
     class Meta:
@@ -28,7 +28,7 @@ class ShowDebtorsListSerializer(serializers.ModelSerializer):
             "id",
             "building",
             "building_name",
-            "resident",
+            "responsible",
             "resident_name",
             "amount_due",
             "due_date",
@@ -50,6 +50,5 @@ class TransactionListSerializer(serializers.ModelSerializer):
             "description",
             "amount",
             "date",
-            "is_paid",
             "created_at",
         ]

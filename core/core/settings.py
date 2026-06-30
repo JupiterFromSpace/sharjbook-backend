@@ -173,11 +173,23 @@ AUTH_USER_MODEL = "accounts.User"
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
+# دامنه‌ی فرانت روی سرور استیج/پروداکشن رو از env اضافه کن، مثلاً:
+# FRONTEND_URL=https://app.sharjbook.ir
+_frontend_url = config("FRONTEND_URL", default="")
+if _frontend_url:
+    CORS_ALLOWED_ORIGINS.append(_frontend_url)
+    CSRF_TRUSTED_ORIGINS_EXTRA = [_frontend_url]
+else:
+    CSRF_TRUSTED_ORIGINS_EXTRA = []
+
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
-]
+    "http://localhost:5173",
+] + CSRF_TRUSTED_ORIGINS_EXTRA
 
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
@@ -203,3 +215,12 @@ CACHES = {
 
 
 SMS_IR_API_KEY = os.getenv("SMS_IR_API_KEY")
+
+# Email (Gmail SMTP) - used for sending OTP login codes
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)

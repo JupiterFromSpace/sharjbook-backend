@@ -88,7 +88,6 @@ class CreateBuildingSerializer(serializers.ModelSerializer):
                 title="موجودی اولیه صندوق",
                 amount=initial_balance,
                 date=timezone.now().date(),
-                is_paid=True,
             )
 
         return building

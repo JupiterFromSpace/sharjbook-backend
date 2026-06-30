@@ -9,16 +9,17 @@ import uuid
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, phone, password=None, **extra_fields):
-        if not phone:
-            raise ValueError("کاربر باید شماره موبایل داشته باشد.")
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError("کاربر باید ایمیل داشته باشد.")
 
-        user = self.model(phone=phone, **extra_fields)
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, phone, password=None, **extra_fields):
+    def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
@@ -28,7 +29,7 @@ class UserManager(BaseUserManager):
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("سوپریوزر باید is_superuser=True باشد")
 
-        return self.create_user(phone, password, **extra_fields)
+        return self.create_user(email, password, **extra_fields)
 
 
 class User(AbstractUser):
@@ -36,7 +37,7 @@ class User(AbstractUser):
 
     username = None
 
-    USERNAME_FIELD = "phone"
+    USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
     objects = UserManager()
@@ -56,10 +57,18 @@ class User(AbstractUser):
         default="MANAGER",
         verbose_name="نقش کاربر",
     )
+    email = models.EmailField(
+        unique=True,
+        null=True,
+        blank=True,
+        verbose_name="ایمیل",
+    )
     phone = models.CharField(
         validators=[phone_validator],
         max_length=13,
         unique=True,
+        null=True,
+        blank=True,
         verbose_name="شماره تماس",
     )
 
@@ -76,7 +85,12 @@ class User(AbstractUser):
     )
 
     def __str__(self):
-        return {id}
+        return self.email or str(self.id)
+
+    @property
+    def full_name(self):
+        full = f"{self.first_name} {self.last_name}".strip()
+        return full or self.email
 
     @property
     def is_manager(self):
