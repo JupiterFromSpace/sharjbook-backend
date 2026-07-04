@@ -1,0 +1,46 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  Test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup Docker-Compose
+      run: docker compose up -d
+    - name: Run Tests
+      run: docker compose exec -T backend python manage.py test
+
+  Deploy:
+    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }} 
+    name: Deploy
+    needs: Test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Connect and Execute Commands
+      uses: appleboy/ssh-action@master
+      with:
+        username: ${{secrets.USERNAME}}
+        password: ${{secrets.PASSWORD}}
+        host: ${{secrets.HOST}}
+        port: ${{secrets.PORT}}
+        script: |
+          cd ${{secrets.PROJECT_PATH}}
+          docker compose -f docker-compose-stage.yml down
+          git pull
+          docker compose -f docker-compose-stage.yml up -d --build
+              
+          docker compose -f docker-compose-stage.yml exec -T backend python manage.py migrate
+              
+          docker compose -f docker-compose-stage.yml exec -T backend python manage.py collectstatic --noinput
+          
