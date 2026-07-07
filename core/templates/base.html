@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}شارژبوک{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:       #1c2541;
+      --ink-soft:  #3a4566;
+      --paper:     #faf7f0;
+      --paper-dim: #f1ecdf;
+      --gold:      #b8893f;
+      --sage:      #5c7a5c;
+      --rust:      #a8472f;
+      --border:    rgba(28,37,65,.12);
+    }
+
+    body {
+      font-family: 'Vazirmatn', system-ui, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    nav {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      padding: .9rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    nav .brand { font-weight: 800; font-size: 1.15rem; color: var(--ink); text-decoration: none; }
+    nav .nav-links { display: flex; gap: 1rem; align-items: center; }
+    nav .nav-links a {
+      font-size: .85rem; color: var(--ink-soft); text-decoration: none;
+      padding: .4rem .9rem; border-radius: 6px; transition: background .15s;
+    }
+    nav .nav-links a:hover { background: var(--paper-dim); }
+    nav .nav-links a.btn {
+      background: var(--ink); color: #fff;
+    }
+    nav .nav-links a.btn:hover { background: var(--ink-soft); }
+
+    .container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    .messages { list-style: none; margin-bottom: 1rem; }
+    .messages li {
+      padding: .7rem 1rem; border-radius: 8px; font-size: .85rem; margin-bottom: .5rem;
+    }
+    .messages .error   { background: #fdecea; color: var(--rust); }
+    .messages .success { background: #eaf4ea; color: var(--sage); }
+    .messages .info    { background: #e8f0fe; color: #1a56db; }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <nav>
+    <a class="brand" href="/">شارژبوک</a>
+    <div class="nav-links">
+      <a href="/swagger/">مستندات API</a>
+      {% if user.is_authenticated %}
+        <span style="font-size:.85rem;color:var(--ink-soft)">{{ user.phone }}</span>
+        <a href="/accounts/web/logout/">خروج</a>
+      {% else %}
+        <a href="/accounts/web/login/">ورود</a>
+        <a href="/accounts/web/signup/" class="btn">ثبت‌نام</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <div class="container">
+    {% if messages %}
+      <ul class="messages">
+        {% for msg in messages %}
+          <li class="{{ msg.tags }}">{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

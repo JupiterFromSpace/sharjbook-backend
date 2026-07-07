@@ -87,7 +87,7 @@ ROOT_URLCONF = "core.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -175,8 +175,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "http://188.121.122.229:3000",
-    "http://188.121.122.229",
 ]
 # دامنه‌ی فرانت روی سرور استیج/پروداکشن رو از env اضافه کن، مثلاً:
 # FRONTEND_URL=https://app.sharjbook.ir
@@ -216,13 +214,9 @@ CACHES = {
 
 
 
-SMS_IR_API_KEY = os.getenv("SMS_IR_API_KEY")
+SMS_IR_API_KEY = config("SMS_IR_API_KEY", default="")
+SMS_IR_TEMPLATE_ID = config("SMS_IR_TEMPLATE_ID", default=100000, cast=int)
 
-# Email (Gmail SMTP) - used for sending OTP login codes
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
-DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
+LOGIN_URL = "/accounts/web/login/"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/accounts/web/login/"

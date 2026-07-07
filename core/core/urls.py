@@ -22,34 +22,38 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.conf import settings
 from django.conf.urls.static import static
+from accounts.views_web import home_view
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Snippets API",
+        title="ShargBook API",
         default_version="v1",
-        description="Test description",
-        terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="contact@snippets.local"),
-        license=openapi.License(name="BSD License"),
+        description="سیستم مدیریت شارژ و امور مالی ساختمان",
+        contact=openapi.Contact(email="sinamatari23@gmail.com"),
+        license=openapi.License(name="MIT License"),
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
 )
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("",        home_view, name="home"),
+    path("admin/",  admin.site.urls),
+
+    # مستندات API
     path("swagger.json/", schema_view.without_ui(cache_timeout=0), name="schema-json"),
-    path(
-        "swagger/",
-        schema_view.with_ui("swagger", cache_timeout=0),
-        name="schema-swagger-ui",
-    ),
+    path("swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="schema-swagger-ui"),
+
+    # API endpoints
     path("accounts/", include("accounts.urls")),
     path("building/", include("buildings.urls")),
-    path("finance/", include("finance.urls")),
-]
+    path("finance/",  include("finance.urls")),
 
+    # Template-based web views (login/signup/logout)
+    path("accounts/web/", include("accounts.urls_web")),
+]
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

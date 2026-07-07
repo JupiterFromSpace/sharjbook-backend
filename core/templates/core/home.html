@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}شارژبوک - مدیریت شارژ ساختمان{% endblock %}
+
+{% block extra_css %}
+<style>
+  .hero {
+    text-align: center;
+    padding: 4rem 1rem 3rem;
+  }
+  .hero h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: .75rem;
+  }
+  .hero p {
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    max-width: 520px;
+    margin: 0 auto 2rem;
+    line-height: 1.8;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    background: var(--gold);
+    color: #fff;
+    padding: .75rem 1.75rem;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: .95rem;
+    transition: opacity .15s;
+  }
+  .btn-primary:hover { opacity: .88; }
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    border: 1.5px solid var(--border);
+    color: var(--ink);
+    padding: .75rem 1.75rem;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: .95rem;
+    transition: background .15s;
+  }
+  .btn-outline:hover { background: var(--paper-dim); }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2.5rem 0;
+  }
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 3rem;
+  }
+  .feature-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem 1.25rem;
+  }
+  .feature-card .icon { font-size: 1.6rem; margin-bottom: .6rem; }
+  .feature-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: .35rem; }
+  .feature-card p { font-size: .82rem; color: var(--ink-soft); line-height: 1.7; }
+
+  .api-box {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .api-box div p:first-child { font-weight: 700; margin-bottom: .25rem; }
+  .api-box div p:last-child  { font-size: .85rem; color: var(--ink-soft); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero">
+  <h1>📒 شارژبوک</h1>
+  <p>سیستم مدیریت شارژ و امور مالی ساختمان — مدیران می‌توانند ساختمان و ساکنین را تعریف کنند، صندوق مالی را مدیریت کنند و گزارش بدهکاران را مشاهده کنند.</p>
+  <div class="hero-actions">
+    <a href="/swagger/" class="btn-primary">📄 مستندات API (Swagger)</a>
+    <a href="/accounts/web/signup/" class="btn-outline">ثبت‌نام</a>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="features">
+  <div class="feature-card">
+    <div class="icon">🔐</div>
+    <h3>احراز هویت</h3>
+    <p>ورود با OTP پیامکی، توکن‌های JWT با قابلیت رفرش خودکار</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">🏢</div>
+    <h3>مدیریت ساختمان</h3>
+    <p>ایجاد ساختمان، تعریف واحدها، افزودن ساکنین و تخصیص شارژ</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">💰</div>
+    <h3>امور مالی</h3>
+    <p>صندوق ساختمان، ثبت درآمد/هزینه، مدیریت بدهی‌ها و پرداخت‌ها</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">📊</div>
+    <h3>گزارش‌ها</h3>
+    <p>لیست بدهکاران، تاریخچه تراکنش‌ها، موجودی صندوق</p>
+  </div>
+</div>
+
+<div class="api-box">
+  <div>
+    <p>مستندات تعاملی API</p>
+    <p>برای تست endpoint ها ابتدا با حساب کاربری خود وارد شوید، سپس Swagger را باز کنید</p>
+  </div>
+  <a href="/swagger/" class="btn-primary">باز کردن Swagger ↗</a>
+</div>
+{% endblock %}

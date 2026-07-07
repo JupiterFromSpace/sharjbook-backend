@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}ثبت‌نام - شارژبوک{% endblock %}
+
+{% block extra_css %}
+<style>
+  .auth-wrap { max-width: 420px; margin: 3rem auto; }
+  .auth-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 2rem;
+  }
+  .auth-card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem; }
+  .field { margin-bottom: 1rem; }
+  .field label {
+    display: block; font-size: .83rem; font-weight: 500;
+    color: var(--ink-soft); margin-bottom: .4rem;
+  }
+  .field input, .field select {
+    width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+    padding: .65rem 1rem; font-size: .9rem; font-family: inherit; color: var(--ink);
+    outline: none; transition: border-color .15s; background: #fff;
+  }
+  .field input[type="tel"] { direction: ltr; text-align: right; }
+  .field input:focus, .field select:focus { border-color: var(--gold); }
+  .field .field-error { font-size: .78rem; color: var(--rust); margin-top: .3rem; }
+  .field .hint { font-size: .78rem; color: var(--ink-soft); margin-top: .3rem; }
+  .submit-btn {
+    width: 100%; background: var(--gold); color: #fff; border: none;
+    border-radius: 8px; padding: .75rem; font-size: .95rem; font-family: inherit;
+    font-weight: 600; cursor: pointer; margin-top: .5rem; transition: opacity .15s;
+  }
+  .submit-btn:hover { opacity: .88; }
+  .auth-footer { text-align: center; margin-top: 1.25rem; font-size: .83rem; color: var(--ink-soft); }
+  .auth-footer a { color: var(--gold); text-decoration: none; font-weight: 600; }
+  .non-field-error {
+    background: #fdecea; color: var(--rust); border-radius: 8px;
+    padding: .65rem 1rem; font-size: .85rem; margin-bottom: 1rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h2>ثبت‌نام</h2>
+
+    {% if form.non_field_errors %}
+      <div class="non-field-error">{{ form.non_field_errors.0 }}</div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="field">
+        <label for="id_phone">شماره موبایل</label>
+        <input
+          type="tel"
+          name="phone"
+          id="id_phone"
+          placeholder="+989123456789"
+          value="{{ form.phone.value|default:'' }}"
+          autofocus
+        >
+        <div class="hint">فرمت: +989123456789</div>
+        {% if form.phone.errors %}
+          <div class="field-error">{{ form.phone.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="field">
+        <label for="id_role">نقش</label>
+        <select name="role" id="id_role">
+          <option value="MANAGER" {% if form.role.value == "MANAGER" %}selected{% endif %}>مدیر ساختمان</option>
+          <option value="RESIDENT" {% if form.role.value == "RESIDENT" %}selected{% endif %}>ساکن</option>
+        </select>
+        {% if form.role.errors %}
+          <div class="field-error">{{ form.role.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="field">
+        <label for="id_password1">رمز عبور</label>
+        <input type="password" name="password1" id="id_password1" placeholder="حداقل ۸ کاراکتر">
+        {% if form.password1.errors %}
+          <div class="field-error">{{ form.password1.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="field">
+        <label for="id_password2">تکرار رمز عبور</label>
+        <input type="password" name="password2" id="id_password2" placeholder="رمز عبور را دوباره وارد کنید">
+        {% if form.password2.errors %}
+          <div class="field-error">{{ form.password2.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="submit-btn">ثبت‌نام</button>
+    </form>
+
+    <div class="auth-footer">
+      قبلاً ثبت‌نام کردید؟ <a href="/accounts/web/login/">وارد شوید</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
