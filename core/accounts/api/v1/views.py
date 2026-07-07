@@ -8,7 +8,6 @@ from .serializers import RequestOTPSerializer, VerifyOTPSerializer, UpdateProfil
 from core.utils.responses import SuccessResponse, ErrorResponse, ServerErrorResponse
 from ...models.profiles import Profile
 from accounts.models import User, OTP
-from accounts.services.sms import send_otp
 
 
 class EmailPasswordLoginView(APIView):
@@ -66,7 +65,6 @@ class RequestOTPView(APIView):
             user, _ = User.objects.get_or_create(phone=phone)
             code = OTP.generate_code()
             OTP.objects.create(user=user, code=code)
-            send_otp(phone=phone, code=code)
 
             return SuccessResponse.send(message="کد تایید به شماره موبایل شما ارسال شد")
 
