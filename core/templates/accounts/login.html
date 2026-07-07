@@ -3,76 +3,27 @@
 
 {% block extra_css %}
 <style>
-  .auth-wrap {
-    max-width: 420px;
-    margin: 3rem auto;
-  }
-  .auth-card {
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 2rem;
-  }
-  .auth-card h2 {
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    color: var(--ink);
-  }
+  .auth-wrap { max-width: 420px; margin: 3rem auto; }
+  .auth-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 2rem; }
+  .auth-card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem; }
   .field { margin-bottom: 1rem; }
-  .field label {
-    display: block;
-    font-size: .83rem;
-    font-weight: 500;
-    color: var(--ink-soft);
-    margin-bottom: .4rem;
-  }
+  .field label { display: block; font-size: .83rem; font-weight: 500; color: var(--ink-soft); margin-bottom: .4rem; }
   .field input {
-    width: 100%;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    padding: .65rem 1rem;
-    font-size: .9rem;
-    font-family: inherit;
-    color: var(--ink);
-    outline: none;
-    transition: border-color .15s;
-    background: #fff;
-    direction: ltr;
-    text-align: right;
+    width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+    padding: .65rem 1rem; font-size: .9rem; font-family: inherit; color: var(--ink);
+    outline: none; transition: border-color .15s; background: #fff; direction: ltr; text-align: right;
   }
   .field input:focus { border-color: var(--gold); }
   .field .field-error { font-size: .78rem; color: var(--rust); margin-top: .3rem; }
   .submit-btn {
-    width: 100%;
-    background: var(--ink);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: .75rem;
-    font-size: .95rem;
-    font-family: inherit;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: .5rem;
-    transition: background .15s;
+    width: 100%; background: var(--ink); color: #fff; border: none;
+    border-radius: 8px; padding: .75rem; font-size: .95rem; font-family: inherit;
+    font-weight: 600; cursor: pointer; margin-top: .5rem; transition: background .15s;
   }
   .submit-btn:hover { background: var(--ink-soft); }
-  .auth-footer {
-    text-align: center;
-    margin-top: 1.25rem;
-    font-size: .83rem;
-    color: var(--ink-soft);
-  }
+  .auth-footer { text-align: center; margin-top: 1.25rem; font-size: .83rem; color: var(--ink-soft); }
   .auth-footer a { color: var(--gold); text-decoration: none; font-weight: 600; }
-  .non-field-error {
-    background: #fdecea;
-    color: var(--rust);
-    border-radius: 8px;
-    padding: .65rem 1rem;
-    font-size: .85rem;
-    margin-bottom: 1rem;
-  }
+  .non-field-error { background: #fdecea; color: var(--rust); border-radius: 8px; padding: .65rem 1rem; font-size: .85rem; margin-bottom: 1rem; }
 </style>
 {% endblock %}
 
@@ -89,26 +40,17 @@
       {% csrf_token %}
 
       <div class="field">
-        <label for="id_username">شماره موبایل</label>
-        <input
-          type="tel"
-          name="username"
-          id="id_username"
-          placeholder="+989123456789"
-          value="{{ form.username.value|default:'' }}"
-          autofocus
-        >
-        {% if form.username.errors %}
-          <div class="field-error">{{ form.username.errors.0 }}</div>
-        {% endif %}
+        <label for="id_email">ایمیل</label>
+        <input type="email" name="email" id="id_email"
+               placeholder="you@example.com"
+               value="{{ form.email.value|default:'' }}" autofocus>
+        {% if form.email.errors %}<div class="field-error">{{ form.email.errors.0 }}</div>{% endif %}
       </div>
 
       <div class="field">
         <label for="id_password">رمز عبور</label>
         <input type="password" name="password" id="id_password" placeholder="رمز عبور خود را وارد کنید">
-        {% if form.password.errors %}
-          <div class="field-error">{{ form.password.errors.0 }}</div>
-        {% endif %}
+        {% if form.password.errors %}<div class="field-error">{{ form.password.errors.0 }}</div>{% endif %}
       </div>
 
       <button type="submit" class="submit-btn">ورود</button>

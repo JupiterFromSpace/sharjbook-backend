@@ -2,38 +2,30 @@ from django import forms
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.core.validators import RegexValidator
 from accounts.models import User
 
 
 # ─── فرم‌ها ───────────────────────────────────────────────
 
 class WebLoginForm(forms.Form):
-    username = forms.CharField(label="شماره موبایل")
+    email    = forms.EmailField(label="ایمیل")
     password = forms.CharField(label="رمز عبور", widget=forms.PasswordInput)
 
 
 class WebSignupForm(forms.Form):
-    phone_validator = RegexValidator(
-        regex=r"^\+98\d{10}$",
-        message="شماره موبایل باید با +98 شروع شود. مثال: +989123456789",
-    )
-    phone = forms.CharField(
-        label="شماره موبایل",
-        validators=[phone_validator],
-    )
-    role = forms.ChoiceField(
+    email = forms.EmailField(label="ایمیل")
+    role  = forms.ChoiceField(
         label="نقش",
         choices=[("MANAGER", "مدیر ساختمان"), ("RESIDENT", "ساکن")],
     )
     password1 = forms.CharField(label="رمز عبور", widget=forms.PasswordInput, min_length=8)
     password2 = forms.CharField(label="تکرار رمز عبور", widget=forms.PasswordInput)
 
-    def clean_phone(self):
-        phone = self.cleaned_data["phone"]
-        if User.objects.filter(phone=phone).exists():
-            raise forms.ValidationError("این شماره قبلاً ثبت شده است.")
-        return phone
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("این ایمیل قبلاً ثبت شده است.")
+        return email
 
     def clean(self):
         cleaned = super().clean()
@@ -57,17 +49,17 @@ def login_view(request):
     form = WebLoginForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
-        phone = form.cleaned_data["username"]
+        email    = form.cleaned_data["email"]
         password = form.cleaned_data["password"]
 
-        user = authenticate(request, username=phone, password=password)
+        user = authenticate(request, username=email, password=password)
 
         if user is not None:
             login(request, user)
-            messages.success(request, f"خوش آمدید!")
+            messages.success(request, "خوش آمدید!")
             return redirect(request.GET.get("next", "/"))
         else:
-            messages.error(request, "شماره موبایل یا رمز عبور اشتباه است.")
+            messages.error(request, "ایمیل یا رمز عبور اشتباه است.")
 
     return render(request, "accounts/login.html", {"form": form})
 
@@ -79,11 +71,15 @@ def signup_view(request):
     form = WebSignupForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
-        phone    = form.cleaned_data["phone"]
+        email    = form.cleaned_data["email"]
         role     = form.cleaned_data["role"]
         password = form.cleaned_data["password1"]
 
-        user = User.objects.create_user(phone=phone, password=password, role=role)
+        # چون USERNAME_FIELD = "email"، create_user اول email می‌گیره
+        user = User(email=email, role=role)
+        user.set_password(password)
+        user.save()
+
         login(request, user)
         messages.success(request, "ثبت‌نام با موفقیت انجام شد.")
         return redirect("/")

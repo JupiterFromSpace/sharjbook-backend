@@ -67,7 +67,7 @@
     <div class="nav-links">
       <a href="/swagger/">مستندات API</a>
       {% if user.is_authenticated %}
-        <span style="font-size:.85rem;color:var(--ink-soft)">{{ user.phone }}</span>
+        <span style="font-size:.85rem;color:var(--ink-soft)">{{ user.email }}</span>
         <a href="/accounts/web/logout/">خروج</a>
       {% else %}
         <a href="/accounts/web/login/">ورود</a>
