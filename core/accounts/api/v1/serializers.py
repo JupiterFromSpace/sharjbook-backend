@@ -2,21 +2,37 @@ from rest_framework import serializers
 from accounts.models import User, Profile
 
 
-
 class RequestOTPSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    phone = serializers.CharField()
+
+    def validate_phone(self, value):
+        if not value.startswith("+98") or len(value) != 13:
+            raise serializers.ValidationError(
+                "شماره موبایل باید با +98 شروع شود. مثال: +989123456789"
+            )
+        return value
 
 
 class VerifyOTPSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    phone = serializers.CharField()
     code = serializers.CharField(max_length=6)
+
+    def validate_phone(self, value):
+        if not value.startswith("+98") or len(value) != 13:
+            raise serializers.ValidationError(
+                "شماره موبایل باید با +98 شروع شود. مثال: +989123456789"
+            )
+        return value
+
+
+class EmailPasswordLoginSerializer(serializers.Serializer):
+    email    = serializers.EmailField(help_text="ایمیل کاربر")
+    password = serializers.CharField(write_only=True, help_text="رمز عبور")
 
 
 class UpdateProfileSerializer(serializers.ModelSerializer):
-    """Update profile fields partially (optional fields)."""
-
-    email = serializers.EmailField(source="user.email", read_only=True)
     phone = serializers.CharField(source="user.phone", read_only=True)
+    email = serializers.EmailField(source="user.email", required=False)
 
     class Meta:
         model = Profile
@@ -28,4 +44,4 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
             "email",
             "discription",
         )
-        read_only_fields = ["phone", "email"]
+        read_only_fields = ["phone"]
