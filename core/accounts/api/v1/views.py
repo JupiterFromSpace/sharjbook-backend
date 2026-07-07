@@ -4,6 +4,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate
 
+from drf_yasg.utils import swagger_auto_schema
+
 from .serializers import RequestOTPSerializer, VerifyOTPSerializer, UpdateProfileSerializer, EmailPasswordLoginSerializer
 from core.utils.responses import SuccessResponse, ErrorResponse, ServerErrorResponse
 from ...models.profiles import Profile
@@ -14,8 +16,9 @@ class EmailPasswordLoginView(APIView):
     """
     ورود با ایمیل و رمز عبور - برای تست Swagger
     """
+    
     permission_classes = (AllowAny,)
-
+    @swagger_auto_schema(request_body=EmailPasswordLoginSerializer)
     def post(self, request):
         serializer = EmailPasswordLoginSerializer(data=request.data)
 
