@@ -12,15 +12,15 @@ Dockerized deployment with Nginx as a reverse proxy and Gunicorn as the applicat
     
 
 # Tech Stack:
-Layer	                Technology
-Backend	                Python, Django, Django REST Framework
-Database	            PostgreSQL
-Auth	                JWT (SimpleJWT)
-Background Tasks	    Celery, Redis
-Caching	                Redis
-Web Server	            Gunicorn, Nginx
-Containerization	    Docker, Docker Compose
-CI/CD	                GitHub Actions
+        Layer	                Technology
+        Backend	                Python, Django, Django REST Framework
+        Database	            PostgreSQL
+        Auth	                JWT (SimpleJWT)
+        Background Tasks	    Celery, Redis
+        Caching	                Redis
+        Web Server	            Gunicorn, Nginx
+        Containerization	    Docker, Docker Compose
+        CI/CD	                GitHub Actions
 
 
 # Architecture:
