@@ -1,8 +1,8 @@
-ShargBook 
-A backend system for managing building service charges, residents, and payments — built with Django REST Framework.
-ShargBook helps building managers track residential units, calculate and issue monthly charge invoices, and manage residents, while giving residents visibility into their own payment history through a role-based API.
+# ShargBook 
+    A backend system for managing building service charges, residents, and payments — built with Django REST Framework.
+    ShargBook helps building managers track residential units, calculate and issue monthly charge invoices, and manage residents, while giving residents visibility into their own payment history through a role-based API.
 
-Features:
+# Features:
     JWT Authentication with role-based access control for residents and building managers.
     Building & unit management — register buildings, residential units, and assign residents.
     Automated monthly charge invoicing for residential units.
@@ -11,37 +11,36 @@ Features:
     Dockerized deployment with Nginx as a reverse proxy and Gunicorn as the application server.
     
 
-Tech Stack:
-    Layer	                Technology
-    Backend	                Python, Django, Django REST Framework
-    Database	            PostgreSQL
-    Auth	                JWT (SimpleJWT)
-    Background Tasks	    Celery, Redis
-    Caching	                Redis
-    Web Server	            Gunicorn, Nginx
-    Containerization	    Docker, Docker Compose
-    CI/CD	                GitHub Actions
+# Tech Stack:
+        Layer	                Technology
+        Backend	                Python, Django, Django REST Framework
+        Database	            PostgreSQL
+        Auth	                JWT (SimpleJWT)
+        Background Tasks	    Celery, Redis
+        Caching	                Redis
+        Web Server	            Gunicorn, Nginx
+        Containerization	    Docker, Docker Compose
+        CI/CD	                GitHub Actions
 
 
-Architecture:
+# Architecture:
     The project is organized into three independent Django apps, each owning its own models and API endpoints:
 
 
-
-sharjbook-backend/
-├── core/
-│   ├── accounts/     # Authentication, users, roles
-│   ├── buildings/    # Buildings, residential units, residents
-│   └── finance/      # Charges, invoices, payments
-├── docker-compose.yml
-├── docker-compose-stage.yml
-├── Dockerfile
-├── default.conf         # Nginx config
-└── requirements.txt
+            sharjbook-backend/
+            ├── core/
+            │   ├── accounts/     # Authentication, users, roles
+            │   ├── buildings/    # Buildings, residential units, residents
+            │   └── finance/      # Charges, invoices, payments
+            ├── docker-compose.yml
+            ├── docker-compose-stage.yml
+            ├── Dockerfile
+            ├── default.conf         # Nginx config
+            └── requirements.txt
 
 _________________________
 
-Getting Started
+# Getting Started
   
   Prerequisites:
         Docker & Docker Compose
@@ -76,9 +75,9 @@ Getting Started
                     http://localhost:8000/swagger/
 
 
-  Author:
+# Author:
           Sina Matari — github.com/JupiterFromSpace
 
 
-  License:
+# License:
           This project is licensed under the MIT License — see the LICENSE file for details.
