@@ -57,7 +57,7 @@ _________________________
   Note: After changing .env, restart with docker compose up --build — a plain up -d will not re-read environment changes.
 
 
-  Environment Variables:
+#  Environment Variables:
         Create a .env file in the project root with (at minimum):
                     SECRET_KEY=your-django-secret-key
                     DEBUG=True
@@ -65,7 +65,7 @@ _________________________
                     REDIS_URL=redis://redis:6379/0
                     ALLOWED_HOSTS=localhost,127.0.0.1
                     
-  Running Migrations:
+#  Running Migrations:
           docker-compose exec web python manage.py migrate
           docker-compose exec web python manage.py createsuperuser
 
