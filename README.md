@@ -1,26 +1,26 @@
 # ShargBook 
-    A backend system for managing building service charges, residents, and payments — built with Django REST Framework.
-    ShargBook helps building managers track residential units, calculate and issue monthly charge invoices, and manage residents, while giving residents visibility into their own payment history through a role-based API.
+A backend system for managing building service charges, residents, and payments — built with Django REST Framework.
+ShargBook helps building managers track residential units, calculate and issue monthly charge invoices, and manage residents, while giving residents visibility into their own payment history through a role-based API.
 
 # Features:
-    JWT Authentication with role-based access control for residents and building managers.
-    Building & unit management — register buildings, residential units, and assign residents.
-    Automated monthly charge invoicing for residential units.
-    Background task processing with Celery + Redis for scheduled payment reminders and notifications.
-    Redis caching on dashboard statistics and heavy aggregation queries to reduce database load.
-    Dockerized deployment with Nginx as a reverse proxy and Gunicorn as the application server.
+JWT Authentication with role-based access control for residents and building managers.
+Building & unit management — register buildings, residential units, and assign residents.
+Automated monthly charge invoicing for residential units.
+Background task processing with Celery + Redis for scheduled payment reminders and notifications.
+Redis caching on dashboard statistics and heavy aggregation queries to reduce database load.
+Dockerized deployment with Nginx as a reverse proxy and Gunicorn as the application server.
     
 
 # Tech Stack:
-        Layer	                Technology
-        Backend	                Python, Django, Django REST Framework
-        Database	            PostgreSQL
-        Auth	                JWT (SimpleJWT)
-        Background Tasks	    Celery, Redis
-        Caching	                Redis
-        Web Server	            Gunicorn, Nginx
-        Containerization	    Docker, Docker Compose
-        CI/CD	                GitHub Actions
+Layer	                Technology
+Backend	                Python, Django, Django REST Framework
+Database	            PostgreSQL
+Auth	                JWT (SimpleJWT)
+Background Tasks	    Celery, Redis
+Caching	                Redis
+Web Server	            Gunicorn, Nginx
+Containerization	    Docker, Docker Compose
+CI/CD	                GitHub Actions
 
 
 # Architecture:
