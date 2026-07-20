@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-# sharjbook-backend
->>>>>>> 93fd44e5d17581cfe5b988cf0c081a715e3e5613
 ShargBook 
 A backend system for managing building service charges, residents, and payments — built with Django REST Framework.
 ShargBook helps building managers track residential units, calculate and issue monthly charge invoices, and manage residents, while giving residents visibility into their own payment history through a role-based API.
@@ -17,31 +13,18 @@ Features:
 
 Tech Stack:
     Layer	                Technology
-<<<<<<< HEAD
     Backend	                Python, Django, Django REST Framework
     Database	            PostgreSQL
     Auth	                JWT (SimpleJWT)
     Background Tasks	    Celery, Redis
     Caching	                Redis
     Web Server	            Gunicorn, Nginx
-=======
-    Backend	              Python, Django, Django REST Framework
-    Database	            PostgreSQL
-    Auth	                JWT (SimpleJWT)
-    Background Tasks	    Celery, Redis
-    Caching	              Redis
-    Web Server	          Gunicorn, Nginx
->>>>>>> 93fd44e5d17581cfe5b988cf0c081a715e3e5613
     Containerization	    Docker, Docker Compose
     CI/CD	                GitHub Actions
 
 
 Architecture:
-<<<<<<< HEAD
     The project is organized into three independent Django apps, each owning its own models and API endpoints:
-=======
-The project is organized into three independent Django apps, each owning its own models and API endpoints:
->>>>>>> 93fd44e5d17581cfe5b988cf0c081a715e3e5613
 
 
 
@@ -84,13 +67,8 @@ Getting Started
                     ALLOWED_HOSTS=localhost,127.0.0.1
                     
   Running Migrations:
-<<<<<<< HEAD
           docker-compose exec web python manage.py migrate
           docker-compose exec web python manage.py createsuperuser
-=======
-          docker compose exec web python manage.py migrate
-          docker compose exec web python manage.py createsuperuser
->>>>>>> 93fd44e5d17581cfe5b988cf0c081a715e3e5613
 
         
   API Documentation:
@@ -103,24 +81,4 @@ Getting Started
 
 
   License:
-<<<<<<< HEAD
           This project is licensed under the MIT License — see the LICENSE file for details.
-=======
-          This project is licensed under the MIT License — see the LICENSE file for details.
-
-
-
-  
-
-
-
-
-
-  
-
-
-
-
-
-    
->>>>>>> 93fd44e5d17581cfe5b988cf0c081a715e3e5613
