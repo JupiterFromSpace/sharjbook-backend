@@ -5,6 +5,9 @@ from .views import (
     AddResidentView,
     ListResidentView,
     TransferDebtsView,
+    JoinBuildingRequestView,
+    PendingResidentsView,
+    ApproveResidentView,
 )
 
 app_name = "api-v1"
@@ -26,5 +29,20 @@ urlpatterns = [
         "residents/<uuid:resident_id>/transfer-debts/",
         TransferDebtsView.as_view(),
         name="transfer-debts",
+    ),
+    path(
+        "join/<uuid:building_id>/",
+        JoinBuildingRequestView.as_view(),
+        name="join-building",
+    ),
+    path(
+        "<uuid:building_id>/pending-residents/",
+        PendingResidentsView.as_view(),
+        name="pending-residents",
+    ),
+    path(
+        "pending-residents/<uuid:resident_id>/approve/",
+        ApproveResidentView.as_view(),
+        name="approve-resident",
     ),
 ]

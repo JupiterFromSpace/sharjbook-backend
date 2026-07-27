@@ -214,3 +214,52 @@ class ResidentTransferSerializer(serializers.Serializer):
         if value and not value.startswith("+98"):
             raise serializers.ValidationError("شماره تماس باید با +98 شروع شود")
         return value
+
+
+
+class JoinBuildingRequestSerializer(serializers.Serializer):
+    '''
+    سریالایزر مربوط به درخواست عضویت یک ساکن در یک ساختمان موجود.
+    فقط شماره واحد را از کاربر می‌گیرد؛ خودِ کاربر همان request.user است
+    و ساختمان از context (که در view مشخص شده) خوانده می‌شود.
+    '''
+    unit = serializers.IntegerField()
+
+    def validate_unit(self, value):
+        building = self.context["building"]
+
+        if value < 1 or value > building.units:
+            raise serializers.ValidationError("شماره واحد معتبر نیست.")
+
+        return value
+
+    def create(self, validated_data):
+        building = self.context["building"]
+        request = self.context["request"]
+
+        if BuildingResident.objects.filter(
+            building=building, resident=request.user
+        ).exists():
+            raise serializers.ValidationError(
+                "شما قبلاً برای این ساختمان درخواست داده‌اید یا ساکن آن هستید."
+            )
+
+        return BuildingResident.objects.create(
+            building=building,
+            resident=request.user,
+            unit=validated_data["unit"],
+            added_by=request.user,
+            is_approved=False,
+        )
+
+
+class PendingResidentSerializer(serializers.ModelSerializer):
+    '''
+    نمایش لیست درخواست‌های عضویتِ در انتظار تایید، برای مدیر ساختمان.
+    '''
+    phone = serializers.CharField(source="resident.phone", read_only=True)
+    full_name = serializers.CharField(source="resident.full_name", read_only=True)
+
+    class Meta:
+        model = BuildingResident
+        fields = ["id", "unit", "full_name", "phone", "added_at"]

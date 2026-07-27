@@ -1,7 +1,8 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import Transaction, Payment, BuildingFund
+from .models import Transaction, Payment, BuildingFund, Debt
 from buildings.models import Building
+from .tasks import send_debt_issued_notification
 
 
 @receiver(post_save, sender=Transaction)
@@ -26,3 +27,13 @@ def handle_payment(sender, instance, created, **kwargs):
 def create_building_fund(sender, instance, created, **kwargs):
     if created:
         BuildingFund.objects.get_or_create(building=instance)
+
+
+@receiver(post_save, sender=Debt)
+def notify_debt_issued(sender, instance, created, **kwargs):
+    """
+    وقتی یک بدهی جدید ساخته شد (از هر مسیری - چه generate_monthly_debts،
+    چه یک endpoint دستی در آینده)، به ساکن مسئولِ آن اطلاع بده.
+    """
+    if created:
+        send_debt_issued_notification.delay(instance.id)

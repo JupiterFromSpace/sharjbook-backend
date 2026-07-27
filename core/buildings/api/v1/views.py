@@ -1,4 +1,5 @@
 from rest_framework.views import APIView
+from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from django.db import transaction
@@ -14,6 +15,8 @@ from .serializers import (
     AddResidentSerializer,
     ListResidentSerializer,
     ResidentTransferSerializer,
+    JoinBuildingRequestSerializer,
+    PendingResidentSerializer,
 )
 
 import logging
@@ -164,6 +167,11 @@ class TransferDebtsView(APIView):
         resident = resident_relation.resident
         owner = resident_relation.building.manager
 
+        if owner != request.user:
+            return ErrorResponse.send(
+                message="شما مدیر این ساختمان نیستید", status_code=403
+            )
+
         serializer = ResidentTransferSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
@@ -193,3 +201,97 @@ class TransferDebtsView(APIView):
 
         except Exception as e:
             return ServerErrorResponse.send(message=str(e))
+        
+        
+        
+
+class JoinBuildingRequestView(APIView):
+    '''
+    ساکن با داشتن آی‌دی یک ساختمان (که مدیر به‌نوعی به او رسانده، مثلاً با
+    یک لینک یا کد اشتراک‌گذاری)، درخواست عضویت به‌عنوان ساکن آن ساختمان
+    می‌دهد. برخلاف AddResidentView که مدیر خودش ساکن را اضافه می‌کند، اینجا
+    خودِ ساکن است که درخواست می‌دهد و در انتظار تایید مدیر می‌ماند
+    (is_approved=False).
+    '''
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, building_id):
+        building = get_object_or_404(Building, id=building_id)
+
+        serializer = JoinBuildingRequestSerializer(
+            data=request.data, context={"building": building, "request": request}
+        )
+
+        if not serializer.is_valid():
+            return ErrorResponse.send(
+                message="اطلاعات وارد شده نامعتبر است", errors=serializer.errors
+            )
+
+        try:
+            serializer.save()
+        except serializers.ValidationError as e:
+            return ErrorResponse.send(message=str(e.detail[0]))
+
+        return SuccessResponse.send(
+            message="درخواست عضویت شما ثبت شد و در انتظار تایید مدیر است",
+            status_code=201,
+        )
+
+
+class PendingResidentsView(APIView):
+    '''
+    مدیر ساختمان لیست درخواست‌های عضویتِ در انتظار تایید (is_approved=False)
+    را برای ساختمان خودش می‌بیند.
+    '''
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, building_id):
+        building = get_object_or_404(Building, id=building_id)
+
+        if building.manager_id != request.user.id:
+            return ErrorResponse.send(
+                message="شما مدیر این ساختمان نیستید", status_code=403
+            )
+
+        pending = BuildingResident.objects.filter(
+            building=building, is_approved=False
+        ).select_related("resident")
+
+        serializer = PendingResidentSerializer(pending, many=True)
+
+        return SuccessResponse.send(
+            message="لیست درخواست‌های در انتظار تایید", data=serializer.data
+        )
+
+
+class ApproveResidentView(APIView):
+    '''
+    مدیر ساختمان یک درخواست عضویتِ در انتظار را تایید (PATCH) یا رد (DELETE)
+    می‌کند.
+    '''
+    permission_classes = (IsAuthenticated,)
+
+    def patch(self, request, resident_id):
+        resident_relation = get_object_or_404(BuildingResident, pk=resident_id)
+
+        if resident_relation.building.manager_id != request.user.id:
+            return ErrorResponse.send(
+                message="شما مدیر این ساختمان نیستید", status_code=403
+            )
+
+        resident_relation.is_approved = True
+        resident_relation.save(update_fields=["is_approved"])
+
+        return SuccessResponse.send(message="درخواست عضویت تایید شد")
+
+    def delete(self, request, resident_id):
+        resident_relation = get_object_or_404(BuildingResident, pk=resident_id)
+
+        if resident_relation.building.manager_id != request.user.id:
+            return ErrorResponse.send(
+                message="شما مدیر این ساختمان نیستید", status_code=403
+            )
+
+        resident_relation.delete()
+
+        return SuccessResponse.send(message="درخواست عضویت رد شد")

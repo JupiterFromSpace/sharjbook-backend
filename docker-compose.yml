@@ -33,10 +33,6 @@ services:
       - DB_PORT=5432
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-  
-  
-
-
 
   redis:
     image: redis
@@ -44,7 +40,6 @@ services:
     restart: always
     ports:
       - "6379:6379"
-
 
   worker:
     build: .
@@ -60,6 +55,19 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
 
+  beat:
+    build: .
+    command: celery -A core beat --loglevel=info
+    volumes:
+      - ./core:/app
+    depends_on:
+      - redis
+      - backend
+    env_file:
+      - .env
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
 
 
 volumes:
