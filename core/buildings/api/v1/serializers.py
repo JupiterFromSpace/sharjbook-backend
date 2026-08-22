@@ -68,6 +68,10 @@ class CreateBuildingSerializer(serializers.ModelSerializer):
 
         # ایجاد ساختمان
         building = Building.objects.create(manager=user, **validated_data)
+        
+        if user.role != User.Roles.MANAGER:
+            user.role = User.Roles.MANAGER
+            user.save(update_fields=["role"])
 
         # ثبت مدیر به عنوان اولین ساکن
         BuildingResident.objects.create(
@@ -175,6 +179,10 @@ class AddResidentSerializer(serializers.Serializer):
                 "last_name": last_name,
             },
         )
+        
+        if user.role != User.Roles.MANAGER:
+            user.role = User.Roles.RESIDENT
+            user.save(update_fields=["role"])
 
         if BuildingResident.objects.filter(building=building, resident=user).exists():
             raise serializers.ValidationError(
