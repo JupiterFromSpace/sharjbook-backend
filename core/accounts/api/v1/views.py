@@ -122,7 +122,6 @@ class VerifyOTPView(APIView):
                 message="ورود با موفقیت انجام شد",
                 data={
                     "email": user.email,
-                    "role": user.role,
                     "access": str(
                         refresh.access_token
                     ),
